@@ -1,0 +1,10 @@
+{
+  "name": "hundred-days",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "100-дневная программа: свой вес → гиря 24 кг, с трекером веса и печатным планером",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0"
+  }
+}

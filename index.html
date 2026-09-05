@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>100 дней · 105 → 92</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --iron:#1E2427; --iron2:#262F33; --iron3:#37444A; --line:#3E4B51;
+  --paper:#E9E6DC; --muted:#93A1A7; --brass:#C89438; --olive:#8FA85F; --rust:#B5563C;
+  --disp:"Oswald","Roboto Condensed",system-ui,sans-serif;
+  --body:"Golos Text","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--iron);color:var(--paper);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 96px}
+
+/* hero */
+.hero{padding:22px 0 16px;border-bottom:1px solid var(--line)}
+.dayline{display:flex;align-items:baseline;gap:10px}
+.daynum{font-family:var(--disp);font-weight:600;font-size:76px;line-height:.85;letter-spacing:-.02em}
+.dayof{font-family:var(--disp);font-weight:300;font-size:26px;color:var(--muted)}
+.dayword{font-family:var(--disp);font-weight:300;font-size:15px;color:var(--muted);letter-spacing:.14em;writing-mode:vertical-rl;transform:rotate(180deg);height:64px}
+.herometa{display:flex;justify-content:space-between;gap:12px;margin-top:14px;font-size:13px;color:var(--muted)}
+.bar{height:3px;background:var(--iron3);margin-top:12px;position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--brass)}
+.scale{display:flex;gap:18px;margin-top:16px}
+.scale div{flex:1}
+.scale b{font-family:var(--disp);font-weight:400;font-size:30px;display:block;line-height:1}
+.scale span{font-size:12px;color:var(--muted)}
+.nav-day{display:flex;gap:8px;align-items:center}
+.nav-day button{background:none;border:1px solid var(--line);color:var(--muted);width:32px;height:32px;font-size:16px;cursor:pointer;border-radius:2px}
+.nav-day button:hover{border-color:var(--brass);color:var(--brass)}
+
+/* tabs */
+nav.tabs{display:flex;gap:2px;position:sticky;top:0;background:var(--iron);z-index:5;border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs button{flex:1;min-width:88px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:var(--disp);font-size:15px;font-weight:400;padding:13px 6px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--paper);border-bottom-color:var(--brass)}
+nav.tabs button:focus-visible{outline:2px solid var(--brass);outline-offset:-2px}
+
+.panel{display:none;padding-top:18px}
+.panel.on{display:block}
+
+h2{font-family:var(--disp);font-weight:400;font-size:22px;margin:26px 0 10px}
+h3{font-family:var(--disp);font-weight:400;font-size:17px;margin:20px 0 8px;color:var(--brass)}
+p{margin:8px 0}
+.small{font-size:13px;color:var(--muted)}
+
+/* session */
+.sess{border:1px solid var(--line);margin-top:14px}
+.sess header{padding:12px 14px;border-bottom:1px solid var(--line);background:var(--iron2)}
+.sess header b{font-family:var(--disp);font-weight:500;font-size:18px;display:block}
+.sess header .tag{font-size:11px;letter-spacing:.1em;color:var(--brass);display:block;margin-bottom:2px}
+.sess.light{border-color:var(--iron3)}
+.sess.light header{background:#222A2E}
+.sess.light header .tag{color:var(--muted)}
+.dayrow.lt{border-left-style:dotted}
+.sess header span{font-size:12.5px;color:var(--muted)}
+.ex{display:flex;gap:12px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid #2E383D;cursor:pointer}
+.ex:last-child{border-bottom:none}
+.ex .box{flex:0 0 20px;height:20px;border:1px solid var(--iron3);margin-top:2px;position:relative;border-radius:2px}
+.ex.done .box{background:var(--olive);border-color:var(--olive)}
+.ex.done .box::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid var(--iron);border-width:0 2px 2px 0;transform:rotate(43deg)}
+.ex .nm{flex:1}
+.ex.done .nm{color:var(--muted);text-decoration:line-through}
+.ex .pr{font-family:var(--disp);font-size:16px;color:var(--brass);white-space:nowrap}
+.ex.done .pr{color:var(--iron3)}
+
+.rest{border:1px dashed var(--line);padding:16px;margin-top:14px;color:var(--muted)}
+
+/* macros row */
+.macros{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:14px}
+.macros div{background:var(--iron);padding:10px 8px;text-align:center}
+.macros b{font-family:var(--disp);font-size:21px;font-weight:400;display:block;line-height:1.1}
+.macros span{font-size:11px;color:var(--muted)}
+.refeed{border-left:3px solid var(--brass);padding:8px 12px;margin-top:10px;font-size:13.5px;background:var(--iron2)}
+
+/* weight */
+.wform{display:flex;gap:8px;margin:12px 0}
+.wform input{flex:1;background:var(--iron2);border:1px solid var(--line);color:var(--paper);padding:11px;font-size:16px;font-family:var(--body);border-radius:2px}
+.wform button,.btn{background:var(--brass);border:none;color:#20262A;font-family:var(--disp);font-size:15px;padding:11px 18px;cursor:pointer;border-radius:2px}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #2E383D}
+th{font-family:var(--disp);font-weight:400;color:var(--muted);font-size:13px}
+td.n{font-family:var(--disp);font-size:16px}
+.delta.pos{color:var(--olive)} .delta.neg{color:var(--rust)}
+
+/* week list */
+.wk{border-top:1px solid var(--line)}
+.wk>summary{padding:13px 2px;cursor:pointer;font-family:var(--disp);font-size:17px;display:flex;justify-content:space-between;align-items:baseline;list-style:none}
+.wk>summary::-webkit-details-marker{display:none}
+.wk>summary em{font-style:normal;font-size:12.5px;color:var(--muted);font-family:var(--body)}
+.dayrow{padding:9px 0 9px 14px;border-left:2px solid var(--iron3);margin:0 0 2px 4px}
+.dayrow b{font-family:var(--disp);font-weight:500;font-size:14px;color:var(--brass)}
+.dayrow.today{border-left-color:var(--brass);background:var(--iron2)}
+.dayrow ul{margin:4px 0 0;padding-left:16px;font-size:13.5px;color:var(--muted)}
+
+.note{border:1px solid var(--iron3);padding:14px;margin-top:16px;font-size:13.5px;color:var(--muted)}
+.setup{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.setup input[type=date]{background:var(--iron2);border:1px solid var(--line);color:var(--paper);padding:9px;font-family:var(--body);border-radius:2px}
+
+/* print sheets */
+.sheet{background:#fff;color:#111;padding:16px;margin:16px 0;border-radius:2px}
+.sheet h4{font-family:var(--disp);font-size:19px;margin:0 0 2px}
+.sheet .sub{font-size:12px;color:#555;margin-bottom:8px}
+.sheet table{font-size:11.5px;color:#111}
+.sheet th,.sheet td{border:1px solid #999;padding:4px 5px;vertical-align:top}
+.sheet th{background:#eee;color:#111;font-family:var(--disp);font-weight:400}
+.sheet ul{margin:0;padding-left:14px}
+.sq{display:inline-block;width:12px;height:12px;border:1px solid #666;margin-right:3px;vertical-align:-2px}
+
+@media print{
+  body{background:#fff;color:#000}
+  .hero,nav.tabs,.noprint{display:none!important}
+  .panel{display:none!important}
+  #p-print{display:block!important;padding:0}
+  .wrap{max-width:none;padding:0}
+  .sheet{page-break-after:always;margin:0;padding:0}
+  .sheet h4{font-size:16px}
+}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s ease}}
+@media (max-width:420px){.daynum{font-size:62px}.scale b{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero noprint">
+  <div class="dayline">
+    <div class="dayword">ДЕНЬ</div>
+    <div class="daynum" id="dnum">1</div>
+    <div class="dayof">/ 100</div>
+    <div style="margin-left:auto" class="nav-day">
+      <button id="prev" aria-label="Предыдущий день">‹</button>
+      <button id="next" aria-label="Следующий день">›</button>
+    </div>
+  </div>
+  <div class="bar"><i id="bar" style="width:1%"></i></div>
+  <div class="herometa"><span id="blocklab">Блок 1 · Фундамент</span><span id="datelab"></span></div>
+  <div class="scale">
+    <div><b id="wnow">105,0</b><span>текущий вес</span></div>
+    <div><b id="wtarget">105,0</b><span>план на сегодня</span></div>
+    <div><b id="wgoal">91,8</b><span>план на день 100</span></div>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-p="today">Сегодня</button>
+  <button role="tab" aria-selected="false" data-p="plan">План</button>
+  <button role="tab" aria-selected="false" data-p="weight">Вес</button>
+  <button role="tab" aria-selected="false" data-p="food">Питание</button>
+  <button role="tab" aria-selected="false" data-p="print">Планер</button>
+</nav>
+
+<section class="panel on" id="p-today"></section>
+
+<section class="panel" id="p-plan">
+  <h2>Все 100 дней</h2>
+  <p class="small">Тренировка каждый день без пропусков. Четыре дня в неделю нагрузочные, три лёгкие: корпус и подвижность, техника гири, восстановление. Пять блоков по три недели — от чистого веса тела к гире 24 кг.</p>
+  <div id="weeks"></div>
+</section>
+
+<section class="panel" id="p-weight">
+  <h2>Вес</h2>
+  <p class="small">Взвешивайся утром, после туалета, до еды. Ориентируйся не на день, а на среднее за неделю.</p>
+  <div class="wform">
+    <input id="win" type="number" step="0.1" inputmode="decimal" placeholder="Вес сегодня, кг">
+    <button id="wsave">Записать</button>
+  </div>
+  <div id="chart"></div>
+  <table id="wtable"></table>
+  <div class="note">Каждые 14 дней сверяйся с планом. Отстаёшь больше чем на 1 кг — сначала добавь 1500 шагов, и только если через две недели не сдвинулось, убери 100 ккал из углеводов. Опережаешь больше чем на 1,5 кг — верни 100 ккал: слишком быстро уходит и мышца.</div>
+</section>
+
+<section class="panel" id="p-food"></section>
+
+<section class="panel" id="p-print">
+  <p class="small noprint">Ниже — недельные листы под рукописный планер. Печатай (Ctrl/Cmd+P) — на каждой странице одна неделя, пустые клетки под галочки, вес и заметки. Или просто переписывай в свой планер прямо с экрана.</p>
+  <div id="sheets"></div>
+</section>
+
+<div class="note noprint" id="setup">
+  <b style="font-family:var(--disp);font-size:16px">Старт программы</b>
+  <div class="setup">
+    <input type="date" id="startdate">
+    <button class="btn ghost" id="resetall">Сбросить прогресс</button>
+  </div>
+  <b style="font-family:var(--disp);font-size:16px;display:block;margin-top:16px">Синхронизация между устройствами</b>
+  <div class="setup">
+    <input type="password" id="synckey" placeholder="ключ синхронизации" style="background:var(--iron2);border:1px solid var(--line);color:var(--paper);padding:9px;border-radius:2px;font-family:var(--body)">
+    <input type="text" id="syncid" placeholder="профиль" style="width:110px;background:var(--iron2);border:1px solid var(--line);color:var(--paper);padding:9px;border-radius:2px;font-family:var(--body)">
+    <button class="btn" id="syncsave">Подключить</button>
+  </div>
+  <p class="small" style="margin-top:6px">Состояние: <span id="syncst">выключена</span></p>
+  <p class="small">Ключ — тот же, что в переменной APP_KEY на Vercel. Он хранится только в этом браузере и в репозиторий не попадает. Отметки пишутся локально сразу, на сервер уходят следом: без сети тренировка всё равно засчитается.</p>
+  <p style="margin-top:10px">Перед стартом при весе 105 кг и таком дефиците имеет смысл сдать базовые анализы и проверить давление. Резкая боль в спине, колене или плече — не «терпи», а меняй упражнение.</p>
+</div>
+
+</div>
+
+<script>
+/* ---------- данные программы ---------- */
+const E=(n,p)=>({n,p});
+
+const W={};
+// БЛОК 1 — только свой вес
+W[1]={A:{name:"Ноги и таз",ex:[E("Присед на стул","3×12"),E("Выпад назад","3×8 на ногу"),E("Ягодичный мостик","3×15"),E("Планка","3×30 с")]},
+      B:{name:"Верх тела",ex:[E("Отжимания","3×8"),E("Отжимания узко от опоры","3×10"),E("Обратные отжимания от стула","3×10"),E("Y-T-W лёжа на животе","3×10"),E("Боковая планка","3×20 с")]},
+      C:{name:"Круг на всё тело",note:"3 круга подряд, отдых 90 с между кругами",ex:[E("Приседания","15"),E("Отжимания","8"),E("Ягодичный мостик","15"),E("Мёртвый жук","10 на сторону"),E("Планка","30 с")]},
+      D:{name:"Кондиция",note:"4 раунда, отдых 60 с",ex:[E("Приседания","20"),E("Отжимания от опоры","10"),E("Ягодичный мостик","20"),E("Быстрый шаг на месте","60 с")]}};
+W[2]={A:{name:"Ноги и таз",ex:[E("Присед на стул","3×15"),E("Выпад назад","3×10 на ногу"),E("Ягодичный мостик","3×20"),E("Планка","3×40 с")]},
+      B:{name:"Верх тела",ex:[E("Отжимания","3×10"),E("Отжимания узко от опоры","3×12"),E("Обратные отжимания от стула","3×12"),E("Y-T-W лёжа на животе","3×12"),E("Боковая планка","3×30 с")]},
+      C:{name:"Круг на всё тело",note:"4 круга, отдых 90 с",ex:[E("Приседания","15"),E("Отжимания","8"),E("Ягодичный мостик","15"),E("Мёртвый жук","10 на сторону"),E("Планка","30 с")]},
+      D:{name:"Кондиция",note:"5 раундов, отдых 60 с",ex:[E("Приседания","20"),E("Отжимания от опоры","10"),E("Ягодичный мостик","20"),E("Быстрый шаг на месте","60 с")]}};
+W[3]={A:{name:"Ноги и таз",ex:[E("Присед без опоры","4×15"),E("Выпад назад","4×10 на ногу"),E("Мостик на одной ноге","3×12 на ногу"),E("Планка","3×50 с")]},
+      B:{name:"Верх тела",ex:[E("Отжимания","4×10"),E("Отжимания узко от опоры","3×12"),E("Обратные отжимания от стула","4×12"),E("Y-T-W лёжа на животе","3×12"),E("Боковая планка","3×40 с")]},
+      C:{name:"Круг на всё тело",note:"5 кругов, отдых 90 с",ex:[E("Приседания","15"),E("Отжимания","10"),E("Ягодичный мостик","15"),E("Мёртвый жук","10 на сторону"),E("Планка","30 с")]},
+      D:{name:"Кондиция",note:"6 раундов, отдых 60 с",ex:[E("Приседания","20"),E("Отжимания от опоры","12"),E("Ягодичный мостик","20"),E("Быстрый шаг на месте","60 с")]}};
+// БЛОК 2 — гиря 16 кг
+W[4]={A:{name:"Шарнир и тяга · 16",note:"Первая неделя с гирей: техника важнее веса и объёма",ex:[E("Становая с гирей","4×10"),E("Махи двумя руками","5×10"),E("Тяга в наклоне одной рукой","4×10"),E("Планка","3×45 с")]},
+      B:{name:"Жим и ноги · 16",ex:[E("Гоблет-присед","4×10"),E("Отжимания","4×10"),E("Жим гири лёжа с пола","4×8 на руку"),E("Мостик на одной ноге","3×12")]},
+      C:{name:"Корпус и переноски · 16",ex:[E("Турецкий подъём до локтя","5×2 на сторону"),E("Фермерская переноска","4×40 м на руку"),E("Боковая планка","3×30 с"),E("Мёртвый жук","3×10")]},
+      D:{name:"Кондиция",note:"5 кругов, отдых 60 с между кругами",ex:[E("Махи 16","15"),E("Приседания","15"),E("Отжимания","10"),E("Планка","30 с")]}};
+W[5]={A:{name:"Шарнир и тяга · 16",ex:[E("Становая с гирей","4×12"),E("Махи двумя руками","6×12"),E("Тяга в наклоне одной рукой","4×12"),E("Планка","3×60 с")]},
+      B:{name:"Жим и ноги · 16",ex:[E("Гоблет-присед","4×12"),E("Отжимания","4×12"),E("Жим гири лёжа с пола","4×10 на руку"),E("Мостик на одной ноге","3×15")]},
+      C:{name:"Корпус и переноски · 16",ex:[E("Турецкий подъём до руки","5×2 на сторону"),E("Фермерская переноска","5×40 м на руку"),E("Боковая планка","3×40 с"),E("Мёртвый жук","3×12")]},
+      D:{name:"Кондиция",note:"6 кругов, отдых 60 с",ex:[E("Махи 16","15"),E("Приседания","15"),E("Отжимания","10"),E("Планка","30 с")]}};
+W[6]={A:{name:"Шарнир и тяга · 16",ex:[E("Становая с гирей","5×10"),E("Махи двумя руками","8×12"),E("Тяга в наклоне одной рукой","5×10"),E("Планка","3×60 с")]},
+      B:{name:"Жим и ноги · 16",ex:[E("Гоблет-присед","5×12"),E("Отжимания","4×14"),E("Жим гири лёжа с пола","5×8 на руку"),E("Мостик на одной ноге","3×15")]},
+      C:{name:"Корпус и переноски · 16",ex:[E("Турецкий подъём до руки","6×2 на сторону"),E("Фермерская переноска","5×50 м на руку"),E("Боковая планка","3×45 с"),E("Мёртвый жук","3×12")]},
+      D:{name:"Кондиция",note:"7 кругов, отдых 60 с",ex:[E("Махи 16","15"),E("Приседания","15"),E("Отжимания","10"),E("Планка","30 с")]}};
+// БЛОК 3 — владение 16 кг
+W[7]={A:{name:"Махи и жим · 16",ex:[E("Махи, EMOM","10 мин × 10"),E("Заброс + жим","5×5 на руку"),E("Гоблет-присед","4×12"),E("Планка с шагом колена","3×10 на сторону")]},
+      B:{name:"Тяга и отжимания · 16",ex:[E("Румынская тяга на одной ноге","4×8 на ногу"),E("Тяга в наклоне","5×10 на руку"),E("Алмазные отжимания","4×10"),E("Отжимания, ноги на возвышении","3×10")]},
+      C:{name:"Подъём и рывок · 16",ex:[E("Турецкий подъём полный","5×2 на сторону"),E("Рывок, по минуте","10 мин × 5 на руку"),E("Переноска над головой","4×30 м на руку"),E("Боковая планка","3×45 с")]},
+      D:{name:"Интервалы · 16",ex:[E("Махи: 30 с работа / 30 с отдых","10 раундов"),E("Гоблет-присед: 20 с / 40 с","6 раундов"),E("Планка","3×60 с")]}};
+W[8]={A:{name:"Махи и жим · 16",ex:[E("Махи, EMOM","12 мин × 10"),E("Заброс + жим","5×6 на руку"),E("Гоблет-присед","5×10"),E("Планка с шагом колена","3×12")]},
+      B:{name:"Тяга и отжимания · 16",ex:[E("Румынская тяга на одной ноге","4×10 на ногу"),E("Тяга в наклоне","5×12 на руку"),E("Алмазные отжимания","4×12"),E("Отжимания, ноги на возвышении","3×12")]},
+      C:{name:"Подъём и рывок · 16",ex:[E("Турецкий подъём полный","5×3 на сторону"),E("Рывок, по минуте","10 мин × 6 на руку"),E("Переноска над головой","5×30 м на руку"),E("Боковая планка","3×45 с")]},
+      D:{name:"Интервалы · 16",ex:[E("Махи: 30 с / 30 с","12 раундов"),E("Гоблет-присед: 20 с / 40 с","6 раундов"),E("Планка","3×60 с")]}};
+W[9]={A:{name:"Махи и жим · 16",ex:[E("Махи, EMOM","15 мин × 10"),E("Заброс + жим","6×5 на руку"),E("Гоблет-присед","5×12"),E("Планка с шагом колена","3×12")]},
+      B:{name:"Тяга и отжимания · 16",ex:[E("Румынская тяга на одной ноге","5×8 на ногу"),E("Тяга в наклоне","5×12 на руку"),E("Алмазные отжимания","4×12"),E("Отжимания, ноги на возвышении","4×12")]},
+      C:{name:"Подъём и рывок · 16",ex:[E("Турецкий подъём полный","6×2 на сторону"),E("Рывок, по минуте","10 мин × 8 на руку"),E("Переноска над головой","5×30 м на руку"),E("Боковая планка","3×50 с")]},
+      D:{name:"Интервалы · 16",ex:[E("Махи: 30 с / 30 с","14 раундов"),E("Гоблет-присед: 20 с / 40 с","8 раундов"),E("Планка","3×75 с")]}};
+// БЛОК 4 — 24 кг
+W[10]={A:{name:"Сила шарнира · 24",note:"Первый выход на 24 кг. Объём снижен, спина прямая, работает таз",ex:[E("Становая с гирей 24","5×5"),E("Махи 24 двумя руками","8×10"),E("Гоблет-присед 24","4×8"),E("Планка","3×60 с")]},
+       B:{name:"Жим и тяга",ex:[E("Жим 16 стоя","5×5 на руку"),E("Тяга в наклоне 24","5×8 на руку"),E("Отжимания, ноги на возвышении","4×12"),E("Отжимания «лучник»","3×6 на сторону")]},
+       C:{name:"Подъём и переноски · 24",note:"ТГУ с 24 — только если с 16 техника чистая, иначе оставь 16",ex:[E("Турецкий подъём 24","5×1 на сторону"),E("Рывок 16, по минуте","10 мин × 6 на руку"),E("Фермерская переноска 24","5×40 м на руку"),E("Боковая планка","3×50 с")]},
+       D:{name:"Комплекс · 16",note:"5 кругов: связка на одну руку без опускания гири, потом на другую. Отдых 90 с",ex:[E("Заброс","5"),E("Жим","5"),E("Фронт-присед","5")]}};
+W[11]={A:{name:"Сила шарнира · 24",ex:[E("Становая с гирей 24","5×6"),E("Махи 24 двумя руками","10×10"),E("Гоблет-присед 24","4×10"),E("Планка","3×60 с")]},
+       B:{name:"Жим и тяга",ex:[E("Жим 16 стоя","5×6 на руку"),E("Тяга в наклоне 24","5×10 на руку"),E("Отжимания, ноги на возвышении","4×14"),E("Отжимания «лучник»","3×8 на сторону")]},
+       C:{name:"Подъём и переноски · 24",ex:[E("Турецкий подъём 24","5×2 на сторону"),E("Рывок 16, по минуте","10 мин × 8 на руку"),E("Фермерская переноска 24","5×40 м на руку"),E("Боковая планка","3×50 с")]},
+       D:{name:"Комплекс · 16",note:"6 кругов, отдых 90 с",ex:[E("Заброс","5"),E("Жим","5"),E("Фронт-присед","5")]}};
+W[12]={A:{name:"Сила шарнира · 24",ex:[E("Становая с гирей 24","6×5"),E("Махи 24 двумя руками","10×12"),E("Гоблет-присед 24","5×8"),E("Планка","3×70 с")]},
+       B:{name:"Жим и тяга",ex:[E("Жим 16 стоя","6×5 на руку"),E("Тяга в наклоне 24","5×10 на руку"),E("Отжимания, ноги на возвышении","5×12"),E("Отжимания «лучник»","4×8 на сторону")]},
+       C:{name:"Подъём и переноски · 24",ex:[E("Турецкий подъём 24","6×2 на сторону"),E("Рывок 16, по минуте","12 мин × 8 на руку"),E("Фермерская переноска 24","6×40 м на руку"),E("Боковая планка","3×60 с")]},
+       D:{name:"Комплекс · 16",note:"7 кругов, отдых 90 с",ex:[E("Заброс","5"),E("Жим","5"),E("Фронт-присед","5")]}};
+// БЛОК 5 — пик и разгрузка
+W[13]={A:{name:"Пик · махи и жим",ex:[E("Махи 24, EMOM","15 мин × 10"),E("Заброс + жим 16","6×5 на руку"),E("Гоблет-присед 24","5×10"),E("Планка","3×75 с")]},
+       B:{name:"Пик · сила",ex:[E("Становая 24","6×6"),E("Тяга в наклоне 24","5×12 на руку"),E("Отжимания, ноги на возвышении","5×14"),E("Отжимания «лучник»","4×8 на сторону")]},
+       C:{name:"Пик · подъём и рывок",ex:[E("Турецкий подъём 24","6×2 на сторону"),E("Рывок 16, по минуте","12 мин × 8 на руку"),E("Фермерская переноска 24","6×40 м на руку"),E("Боковая планка","3×60 с")]},
+       D:{name:"Пик · комплекс 16",note:"7 кругов, отдых 75 с",ex:[E("Заброс","5"),E("Жим","5"),E("Фронт-присед","5")]}};
+W[14]={A:{name:"Разгрузка · лёгкая сила",note:"Нагрузка на 30 % ниже. Задача недели — прийти к тесту свежим",ex:[E("Махи 24","8×10"),E("Гоблет-присед 16","3×12"),E("Планка","3×45 с")]},
+       B:{name:"Разгрузка · верх",ex:[E("Жим 16 стоя","4×5 на руку"),E("Тяга в наклоне 16","4×12 на руку"),E("Отжимания","3×12")]},
+       C:{name:"Разгрузка · техника",ex:[E("Турецкий подъём 16","4×2 на сторону"),E("Фермерская переноска 16","4×40 м"),E("Мобилити","10 мин")]},
+       D:{name:"Разгрузка · лёгкий круг",note:"3 круга спокойно, без задыхания",ex:[E("Махи 16","15"),E("Приседания","15"),E("Планка","30 с")]}};
+
+// Лёгкие дни — свои для каждого блока. Тренировка есть каждый день, но три дня в неделю она короткая
+const L={};
+L[1]={E:{name:"Корпус и подвижность",note:"15–20 минут, ничего до отказа",ex:[E("Мёртвый жук","3×10"),E("Боковая планка","3×20 с"),E("Ягодичный мостик","2×20"),E("Кошка-корова","2 мин"),E("Растяжка сгибателей бедра","2×40 с на ногу"),E("Ходьба","40 мин")]},
+      F:{name:"Навык дня",note:"Медленно и чисто: это репетиция техники, а не нагрузка",ex:[E("Удержание глубокого приседа у опоры","3×30 с"),E("Отжимания в медленном темпе","3×5, вниз на 5 счётов"),E("Y-T-W лёжа на животе","2×12"),E("Ходьба","40 мин")]},
+      G:{name:"Восстановление",note:"День без нагрузки, но не без движения",ex:[E("Мобилити","20 мин"),E("Ходьба","60 мин"),E("Взвешивание и итог недели","5 мин")]}};
+L[2]={E:{name:"Корпус и подвижность",ex:[E("Мёртвый жук","3×12"),E("Боковая планка","3×30 с"),E("Удержание гоблет-приседа 16","3×30 с"),E("Ягодичный мостик","2×20"),E("Мобилити","8 мин"),E("Ходьба","40 мин")]},
+      F:{name:"Техника гири",note:"Полсилы. Задача — форма, а не усталость",ex:[E("Махи 16","5×10 в полсилы"),E("Турецкий подъём 16","5×1 медленно"),E("Фермерская переноска 16","3×40 м"),E("Ходьба","40 мин")]},
+      G:{name:"Восстановление",ex:[E("Мобилити","20 мин"),E("Ходьба","60 мин"),E("Взвешивание и итог недели","5 мин")]}};
+L[3]={E:{name:"Корпус и подвижность",ex:[E("Планка с шагом колена","3×10 на сторону"),E("Боковая планка","3×40 с"),E("Удержание гоблет-приседа 16","3×40 с"),E("Мёртвый жук","3×12"),E("Ходьба","40–50 мин")]},
+      F:{name:"Техника гири",note:"Полсилы, чистая форма",ex:[E("Рывок 16","5×5 медленно"),E("Турецкий подъём 16","5×1"),E("Переноска над головой","3×30 м"),E("Мобилити","8 мин"),E("Ходьба","40–50 мин")]},
+      G:{name:"Восстановление",ex:[E("Мобилити","20 мин"),E("Ходьба","60–75 мин"),E("Взвешивание и итог недели","5 мин")]}};
+L[4]={E:{name:"Корпус и подвижность",ex:[E("Планка","3×60 с"),E("Боковая планка","3×45 с"),E("Удержание гоблет-приседа 24","3×30 с"),E("Мёртвый жук","3×15"),E("Ходьба","45 мин")]},
+      F:{name:"Техника гири",note:"Разгрузочный день внутри тяжёлого блока — не гонись за весом",ex:[E("Махи 16","5×12 в полсилы"),E("Турецкий подъём 16","5×1"),E("Фермерская переноска 24","3×40 м"),E("Мобилити","8 мин"),E("Ходьба","45 мин")]},
+      G:{name:"Восстановление",ex:[E("Мобилити","20 мин"),E("Ходьба","60–75 мин"),E("Взвешивание и итог недели","5 мин")]}};
+L[5]={E:{name:"Корпус и подвижность",ex:[E("Планка","3×75 с"),E("Боковая планка","3×50 с"),E("Удержание гоблет-приседа 24","3×40 с"),E("Мёртвый жук","3×15"),E("Ходьба","45 мин")]},
+      F:{name:"Техника гири",ex:[E("Рывок 16","5×6 легко"),E("Турецкий подъём 16","5×1"),E("Переноска над головой","3×30 м"),E("Мобилити","8 мин"),E("Ходьба","45 мин")]},
+      G:{name:"Восстановление",ex:[E("Мобилити","20 мин"),E("Ходьба","60–75 мин"),E("Взвешивание и итог недели","5 мин")]}};
+
+// код тренировки определяется днём недели: Пн A, Вт E, Ср B, Чт F, Пт C, Сб D, Вс G
+const SCHED=["A","E","B","F","C","D","G"];
+const LIGHT_CODES=["E","F","G"];
+const dow=t=>(t.getDay()+6)%7;
+
+const BLOCKS=[
+ {n:1,name:"Фундамент",w:[1,3],about:"Только свой вес. Ставим шарнир таза, присед и отжимание, поднимаем шаги.",steps:"10 000 шагов",kcal:2450,p:185,f:80,c:245,refeed:null},
+ {n:2,name:"Ввод гири 16 кг",w:[4,6],about:"Гиря входит в становую, махи, тягу и жим.",steps:"12 000 шагов",kcal:2300,p:185,f:75,c:220,refeed:null},
+ {n:3,name:"Владение 16 кг",w:[7,9],about:"Заброс, рывок, турецкий подъём. Отжимания усложняются.",steps:"13 000 шагов",kcal:2150,p:190,f:70,c:190,refeed:"Суббота — загрузочный день: +70 г углеводов, жиры −15 г."},
+ {n:4,name:"Ввод 24 кг",w:[10,12],about:"24 кг на становой, махах, гоблете и тяге. Жим и рывок остаются на 16 кг.",steps:"14 000 шагов",kcal:2050,p:190,f:65,c:175,refeed:"Один загрузочный день в неделю: +80 г углеводов. Просели сон и сила — два."},
+ {n:5,name:"Пик и ретест",w:[13,14],about:"Неделя предельной плотности, затем разгрузка и тест на 99-й день.",steps:"14 000 шагов",kcal:1950,p:195,f:60,c:155,refeed:"Загрузка в день комплекса: +80 г углеводов."}
+];
+const blockOfWeek=w=>BLOCKS.find(b=>w>=b.w[0]&&w<=b.w[1])||BLOCKS[4];
+
+// план веса по неделям (кг на конец недели)
+const WPLAN=[105,102.8,101.8,100.9,100.0,99.1,98.2,97.3,96.5,95.7,94.9,94.1,93.4,92.7,92.0];
+function targetW(day){
+  if(day>=99) return 91.8;
+  const w=(day-1)/7, i=Math.floor(w), fr=w-i;
+  return +(WPLAN[i]+(WPLAN[Math.min(i+1,14)]-WPLAN[i])*fr).toFixed(1);
+}
+
+const TEST=[E("Отжимания","максимум за один подход"),E("Приседания","максимум за 2 минуты"),E("Планка","максимум по времени"),E("Махи 24 кг","максимум за 5 минут"),E("Замеры","вес, талия, грудь, бедро, фото")];
+
+function dayPlan(d){
+  if(d===99) return {kind:"test",week:15,code:"T",sess:{name:"Ретест",note:"Те же тесты, что в день 1. Сравни цифры — это и есть результат ста дней",ex:TEST}};
+  if(d===100) return {kind:"work",week:15,code:"G",light:true,sess:{name:"День 100",note:"Финиш. Замеры, фото, сравнение с днём 1",ex:[E("Мобилити","20 мин"),E("Ходьба","60 мин"),E("Замеры и фото","вес, талия, грудь, бедро"),E("План на следующий цикл","10 мин с ручкой")]}};
+  const week=Math.ceil(d/7), code=SCHED[dow(dateOf(d))];
+  const b=blockOfWeek(Math.min(14,week));
+  const light=LIGHT_CODES.indexOf(code)>=0;
+  const s=light?L[b.n][code]:W[week][code];
+  const out={kind:"work",week,sess:s,code,light};
+  if(d===1) out.sess={name:s.name,note:"Первый день. Не выкладывайся — просто начни и замерься",ex:s.ex.concat([E("Замеры и фото","вес, талия, грудь, бедро")])};
+  if(d===8){out.sess={name:"Тест первой недели",note:"Неделя техники позади — снимаем максимумы, чтобы было с чем сравнить в день 99",ex:TEST.slice(0,3).concat([E("Махи 16 кг","максимум за 5 минут")])};out.light=false;}
+  return out;
+}
+const DOW=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+
+/* ---------- состояние ---------- */
+let S={start:"2026-09-05",done:{},weights:{}};
+let view=1, mem=null;
+const KEY="hundred:v2", CFGKEY="hundred:cfg";
+const hasCloud=typeof window.storage!=="undefined" && window.storage && window.storage.get;
+let cfg={}, syncTimer=null, syncState="off";
+const syncOn=()=>!!cfg.key;
+
+function readCfg(){try{cfg=JSON.parse(localStorage.getItem(CFGKEY))||{};}catch(e){cfg={};}}
+function writeCfg(){try{localStorage.setItem(CFGKEY,JSON.stringify(cfg));}catch(e){}}
+
+function localGet(){
+  try{const v=localStorage.getItem(KEY); return v?JSON.parse(v):null;}catch(e){return null;}
+}
+function localSet(){
+  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){mem=S;}
+}
+
+async function pull(){
+  const r=await fetch("/api/state?id="+encodeURIComponent(cfg.id||"me"),{headers:{"x-app-key":cfg.key}});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return (await r.json()).data;
+}
+async function push(){
+  const r=await fetch("/api/state",{method:"POST",
+    headers:{"content-type":"application/json","x-app-key":cfg.key},
+    body:JSON.stringify({id:cfg.id||"me",data:S})});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+}
+function setSync(s){syncState=s;const el=document.getElementById("syncst");if(el)el.textContent=
+  ({off:"выключена — данные только в этом браузере",ok:"в порядке",wait:"сохраняю…",err:"ошибка сети, данные сохранены локально"})[s];}
+
+async function load(){
+  // 1. локальная копия — она всегда первична и мгновенна
+  if(hasCloud){try{const r=await window.storage.get(KEY); if(r&&r.value) S=JSON.parse(r.value);}catch(e){}}
+  else {const v=localGet(); if(v) S=v;}
+  readCfg();
+  if(!syncOn()){setSync("off");return;}
+  // 2. если на сервере версия свежее — забираем её
+  try{
+    const remote=await pull();
+    if(remote && (remote.updatedAt||0) > (S.updatedAt||0)){S=remote; localSet();}
+    setSync("ok");
+  }catch(e){setSync("err");}
+}
+
+async function save(){
+  S.updatedAt=Date.now();
+  if(hasCloud){try{await window.storage.set(KEY,JSON.stringify(S));}catch(e){mem=S;}}
+  else localSet();
+  if(!syncOn()) return;
+  setSync("wait");
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(async()=>{
+    try{await push(); setSync("ok");}catch(e){setSync("err");}
+  },1200);
+}
+function todayNum(){
+  const ms=new Date().setHours(0,0,0,0)-new Date(S.start+"T00:00:00").getTime();
+  return Math.min(100,Math.max(1,Math.floor(ms/864e5)+1));
+}
+function dateOf(d){
+  const t=new Date(S.start+"T00:00:00"); t.setDate(t.getDate()+d-1);
+  return t;
+}
+const fmtD=t=>t.toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
+const kg=v=>v.toFixed(1).replace(".",",");
+
+/* ---------- отрисовка ---------- */
+function renderHero(){
+  const b=blockOfWeek(Math.min(14,Math.ceil(view/7)));
+  document.getElementById("dnum").textContent=view;
+  document.getElementById("bar").style.width=view+"%";
+  document.getElementById("blocklab").textContent=view>98?"Финиш":`Блок ${b.n} · ${b.name}`;
+  document.getElementById("datelab").textContent=DOW[(dateOf(view).getDay()+6)%7]+", "+fmtD(dateOf(view));
+  const ws=Object.keys(S.weights).map(Number).sort((a,b)=>a-b);
+  const last=ws.length?S.weights[ws[ws.length-1]]:105;
+  document.getElementById("wnow").textContent=kg(last);
+  document.getElementById("wtarget").textContent=kg(targetW(view));
+}
+
+function renderToday(){
+  const p=dayPlan(view), b=blockOfWeek(Math.min(14,p.week)), el=document.getElementById("p-today");
+  let h="";
+  const s=p.sess;
+  h+=`<div class="sess${p.light?" light":""}"><header><span class="tag">${p.light?"лёгкий день":"нагрузка"}</span><b>${s.name}</b>
+    <span>${s.note?s.note:"Разминка 6–8 минут: суставы, махи ногами, 20 приседаний, 10 отжиманий"}</span></header>`;
+  s.ex.forEach((e,i)=>{
+    const k=`${view}:${i}`, on=S.done[k]?" done":"";
+    h+=`<div class="ex${on}" data-k="${k}"><div class="box"></div><div class="nm">${e.n}</div><div class="pr">${e.p}</div></div>`;
+  });
+  h+=`</div>`;
+  if(p.light) h+=`<p class="small">Лёгкий день — часть программы, а не пропуск. Работай в полсилы: смысл в том, чтобы завтра снова быть в строю.</p>`;
+  const isRef=b.refeed && !p.light && (view-1)%7===5;
+  h+=`<h3>Питание сегодня</h3><div class="macros">
+    <div><b>${isRef?b.kcal+280:b.kcal}</b><span>ккал</span></div>
+    <div><b>${b.p}</b><span>белок, г</span></div>
+    <div><b>${isRef?b.f-15:b.f}</b><span>жиры, г</span></div>
+    <div><b>${isRef?b.c+70:b.c}</b><span>углеводы, г</span></div></div>`;
+  if(isRef) h+=`<div class="refeed">Загрузочный день. ${b.refeed}</div>`;
+  h+=`<p class="small">Вода 3 л · клетчатка 30–35 г · ${b.steps} · белок разбей на 4 приёма по 45–50 г.</p>`;
+  el.innerHTML=h;
+  el.querySelectorAll(".ex").forEach(n=>n.addEventListener("click",()=>{
+    const k=n.dataset.k; S.done[k]=!S.done[k]; n.classList.toggle("done"); save();
+  }));
+}
+
+function renderPlan(){
+  let h="";
+  for(let w=1;w<=15;w++){
+    const b=blockOfWeek(Math.min(14,w));
+    const d0=(w-1)*7+1, d1=Math.min(100,w*7);
+    if(d0>100) break;
+    const open=(Math.ceil(view/7)===w)?" open":"";
+    h+=`<details class="wk"${open}><summary><span>Неделя ${w>14?"·":""} ${w<=14?w:"финиш"}</span><em>дни ${d0}–${d1} · ${w<=14?"блок "+b.n:"ретест"} · цель ${kg(targetW(d1))} кг</em></summary>`;
+    for(let d=d0;d<=d1;d++){
+      const p=dayPlan(d), t=d===view?" today":"";
+      const body=`<b>${p.sess.name}</b><ul>${p.sess.ex.map(e=>`<li>${e.n} — ${e.p}</li>`).join("")}</ul>`;
+      h+=`<div class="dayrow${t}${p.light?" lt":""}"><span class="small">День ${d} · ${DOW[(dateOf(d).getDay()+6)%7]}</span><br>${body}</div>`;
+    }
+    h+=`</details>`;
+  }
+  document.getElementById("weeks").innerHTML=h;
+}
+
+function renderFood(){
+  let h=`<h2>Питание</h2>
+  <p>Расчёт под мужчину 105 кг, 35+, ежедневные тренировки и 10–14 тысяч шагов. Расход на старте — около 2900–3000 ккал, к финишу он падает примерно до 2650, поэтому калории снижаются ступенями, а не сразу. Белок держим высоким всю дорогу — на дефиците он защищает мышцы, которые мы строим гирей.</p>
+  <table><tr><th>Блок</th><th>Дни</th><th>Ккал</th><th>Б</th><th>Ж</th><th>У</th></tr>`;
+  BLOCKS.forEach(b=>{h+=`<tr><td>${b.n} · ${b.name}</td><td class="small">${(b.w[0]-1)*7+1}–${b.n===5?100:b.w[1]*7}</td><td class="n">${b.kcal}</td><td class="n">${b.p}</td><td class="n">${b.f}</td><td class="n">${b.c}</td></tr>`;});
+  h+=`</table>
+  <h3>Траектория веса</h3>
+  <p class="small">Ориентиры на конец каждой недели, кг:</p><table><tr><th>Нед.</th><th>Вес</th><th>Нед.</th><th>Вес</th></tr>`;
+  for(let i=1;i<=7;i++) h+=`<tr><td>${i}</td><td class="n">${kg(WPLAN[i])}</td><td>${i+7}</td><td class="n">${kg(WPLAN[i+7])}</td></tr>`;
+  h+=`</table>
+  <h3>Про 88 кг честно</h3>
+  <p>Чтобы прийти к 88 кг ровно на сотый день, нужно есть в среднем около 1800 ккал все сто дней подряд, тренируясь при этом каждый день. Технически это возможно, практически — так теряют не только жир, но и мышцу, сон и желание продолжать.</p>
+  <p>Здесь заложен дефицит 700–900 ккал: старт с 2450 и понижение по мере падения веса, потому что расход снижается вместе с ним. Плюс дефицит докупается шагами — с 10 до 14 тысяч, а не дальнейшим срезанием еды. Расчётный финиш — около 92 кг, минус 13.</p>
+  <p>До 88 кг остаётся ещё 4–5 недель на тех же 1950–2050 ккал. Разница с исходным планом только в дате, зато к сотому дню ты придёшь с рабочей гирей 24 кг, а не выжатым.</p>
+  <h3>Как это есть</h3>
+  <ul class="small">
+    <li>Белок: 185–195 г — примерно 700–750 г готового мяса, рыбы, творога и яиц в день. Разбей на 4 приёма.</li>
+    <li>Жиры не опускай ниже 60 г: тестостерон и суставы. Источники — яйца, оливковое масло, жирная рыба, орехи в меру.</li>
+    <li>Углеводы ставь вокруг тренировки: до и после. В дни ходьбы их меньше всего.</li>
+    <li>Овощи — 500 г в день, они дают объём при копеечных калориях.</li>
+    <li>Соль не режь: на дефиците и с потом её не хватает, отсюда слабость на тренировке.</li>
+    <li>Алкоголь: он не только калории, он ещё и минус восстановление на 2–3 дня.</li>
+  </ul>
+  <h3>Пересчёт каждые 14 дней</h3>
+  <p class="small">Сравни средний вес за последние 7 дней с планом. Отстаёшь больше чем на 1 кг — сначала плюс 1500 шагов, потом уже минус 100 ккал углеводов. Опережаешь больше чем на 1,5 кг — добавь 100 ккал: слишком быстрая потеря забирает мышцы и убивает силовые.</p>
+  <div class="note">Если два дня подряд болит поясница или колено, если сон стал рваным, а сила падает третью тренировку подряд — это не лень, а перебор. Неделя на калориях поддержания (+400 ккал) и половинном объёме, потом возвращайся в график.</div>`;
+  document.getElementById("p-food").innerHTML=h;
+}
+
+function renderSheets(){
+  let h="";
+  for(let w=1;w<=15;w++){
+    const d0=(w-1)*7+1; if(d0>100) break;
+    const d1=Math.min(100,w*7), b=blockOfWeek(Math.min(14,w));
+    h+=`<div class="sheet"><h4>Неделя ${w<=14?w:"15"} · дни ${d0}–${d1}</h4>
+    <div class="sub">Блок ${b.n} — ${b.name} · ${b.kcal} ккал / Б ${b.p} / Ж ${b.f} / У ${b.c} · ${b.steps} · цель к концу недели ${kg(targetW(d1))} кг</div>
+    <table><tr><th style="width:52px">День</th><th>Тренировка</th><th style="width:56px">Готово</th><th style="width:52px">Вес</th><th style="width:120px">Заметка</th></tr>`;
+    for(let d=d0;d<=d1;d++){
+      const p=dayPlan(d);
+      const body=`<b>${p.sess.name}${p.light?" · лёгкий":""}</b><ul>${p.sess.ex.map(e=>`<li>${e.n} — ${e.p}</li>`).join("")}</ul>`;
+      const marks=p.sess.ex.map(()=>`<span class="sq"></span>`).join("");
+      h+=`<tr><td><b>${d}</b><br>${DOW[(dateOf(d).getDay()+6)%7]}</td><td>${body}</td><td>${marks}</td><td></td><td></td></tr>`;
+    }
+    h+=`</table></div>`;
+  }
+  document.getElementById("sheets").innerHTML=h;
+}
+
+function renderWeight(){
+  const ws=Object.keys(S.weights).map(Number).sort((a,b)=>a-b);
+  // график
+  const W_=340,H=150,pad=26;
+  const x=d=>pad+(d-1)/99*(W_-pad-6), y=v=>H-pad-((v-86)/(107-86))*(H-pad-10);
+  let tl="";for(let d=1;d<=100;d+=1){tl+=`${x(d)},${y(targetW(d))} `;}
+  let al=ws.map(d=>`${x(d)},${y(S.weights[d])}`).join(" ");
+  let dots=ws.map(d=>`<circle cx="${x(d)}" cy="${y(S.weights[d])}" r="2.5" fill="#E9E6DC"/>`).join("");
+  document.getElementById("chart").innerHTML=`<svg viewBox="0 0 ${W_} ${H}" style="width:100%;height:auto;margin-top:6px">
+    <line x1="${pad}" y1="${y(88)}" x2="${W_-6}" y2="${y(88)}" stroke="#37444A" stroke-width="1"/>
+    <text x="2" y="${y(88)+4}" fill="#93A1A7" font-size="9">88</text>
+    <text x="2" y="${y(105)+4}" fill="#93A1A7" font-size="9">105</text>
+    <polyline points="${tl}" fill="none" stroke="#C89438" stroke-width="1.4" stroke-dasharray="4 3"/>
+    ${al?`<polyline points="${al}" fill="none" stroke="#E9E6DC" stroke-width="1.8"/>`:""}${dots}
+  </svg><p class="small">Пунктир — план, сплошная — факт.</p>`;
+  // таблица
+  let h=`<tr><th>День</th><th>Вес</th><th>План</th><th>Разница</th></tr>`;
+  ws.slice().reverse().forEach(d=>{
+    const v=S.weights[d], t=targetW(d), df=+(v-t).toFixed(1);
+    h+=`<tr><td>${d}</td><td class="n">${kg(v)}</td><td class="n" style="color:var(--muted)">${kg(t)}</td>
+    <td class="n delta ${df<=0?"pos":"neg"}">${df>0?"+":""}${kg(df)}</td></tr>`;
+  });
+  document.getElementById("wtable").innerHTML=ws.length?h:`<tr><td class="small">Записей пока нет. Взвесься утром и внеси первую цифру.</td></tr>`;
+}
+
+function renderAll(){renderHero();renderToday();renderPlan();renderWeight();renderSheets();}
+
+/* ---------- события ---------- */
+document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===btn));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+  document.getElementById("p-"+btn.dataset.p).classList.add("on");
+  window.scrollTo({top:0});
+}));
+document.getElementById("prev").onclick=()=>{view=Math.max(1,view-1);renderHero();renderToday();renderPlan();};
+document.getElementById("next").onclick=()=>{view=Math.min(100,view+1);renderHero();renderToday();renderPlan();};
+document.getElementById("wsave").onclick=()=>{
+  const v=parseFloat(document.getElementById("win").value.replace(",","."));
+  if(!v||v<40||v>250) return;
+  S.weights[view]=v; document.getElementById("win").value=""; save(); renderWeight(); renderHero();
+};
+document.getElementById("startdate").onchange=e=>{S.start=e.target.value;view=todayNum();save();renderAll();};
+document.getElementById("resetall").onclick=()=>{
+  if(!confirm("Стереть все отметки и записи веса?")) return;
+  S={start:S.start,done:{},weights:{}};save();renderAll();
+};
+
+document.getElementById("syncsave").onclick=async()=>{
+  cfg.key=document.getElementById("synckey").value.trim();
+  cfg.id=(document.getElementById("syncid").value.trim()||"me");
+  writeCfg();
+  if(!cfg.key){setSync("off");return;}
+  setSync("wait");
+  try{
+    const remote=await pull();
+    if(remote && (remote.updatedAt||0)>(S.updatedAt||0)){S=remote;localSet();renderAll();}
+    else await push();
+    setSync("ok");
+  }catch(e){setSync("err");}
+};
+
+(async()=>{
+  await load();
+  document.getElementById("syncid").value=cfg.id||"me";
+  document.getElementById("startdate").value=S.start;
+  view=todayNum();
+  renderFood();renderAll();
+})();
+</script>
+</body>
+</html>
