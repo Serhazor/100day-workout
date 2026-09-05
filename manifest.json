@@ -1,0 +1,14 @@
+{
+  "name": "100 дней · 105 → 92",
+  "short_name": "100 дней",
+  "description": "100-дневный трекер: свой вес → гиря 24 кг",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1E2427",
+  "theme_color": "#1E2427",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
