@@ -924,24 +924,26 @@ function validateFoodRow(row){
   return {valid:errors.length===0,errors:errors,name:name};
 }
 
-/* ============ модалка: добавить по чеку ============ */
-function openReceiptModal(day){
-  modalState={type:"receipt",day:day,step:"input",text:"",imageBase64:null,imageMediaType:null,imagePreviewUrl:null,items:null,error:null};
+/* ============ модалка: добавить по чеку / по итогу дня из трекера ============ */
+function openReceiptModal(day,mode){
+  modalState={type:"receipt",day:day,mode:mode==="summary"?"summary":"items",step:"input",text:"",imageBase64:null,imageMediaType:null,imagePreviewUrl:null,items:null,error:null};
   renderModal();
 }
 function receiptModalHtml(){
   const m=modalState;
+  const isSummary=m.mode==="summary";
   let body="";
   if(m.step==="input"){
-    body=`<div class="frow"><label>Текст чека</label><textarea id="rec-text" class="bulktext" style="min-height:90px" placeholder="Вставь текст чека или подтверждения заказа…">${esc(m.text)}</textarea></div>
-    <div class="frow"><label>Или фото чека</label>
+    body=`${isSummary?`<p class="hint">Скриншот итога дня из MyFitnessPal или похожего трекера — бери готовые суммы за день, а не отдельные продукты. Если нужно занести чек из магазина, закрой это окно и нажми «Добавить по чеку».</p>`:""}
+    <div class="frow"><label>${isSummary?"Текст с экрана трекера":"Текст чека"}</label><textarea id="rec-text" class="bulktext" style="min-height:90px" placeholder="${isSummary?"Вставь текст итогов дня (calories, protein, carbs, fat…)…":"Вставь текст чека или подтверждения заказа…"}">${esc(m.text)}</textarea></div>
+    <div class="frow"><label>${isSummary?"Или скриншот":"Или фото чека"}</label>
       <label class="recdrop">${m.imagePreviewUrl?`<img src="${m.imagePreviewUrl}">`:"Нажми, чтобы выбрать, или вставь скриншот (Ctrl/Cmd+V)"}
         <input type="file" id="rec-file" accept="image/*" style="display:none">
       </label>
     </div>
     ${m.error?`<div class="errline">${esc(m.error)}</div>`:""}`;
   } else if(m.step==="parsing"){
-    body=`<p class="small">Читаю чек…</p>`;
+    body=`<p class="small">${isSummary?"Читаю итоги дня…":"Читаю чек…"}</p>`;
   } else if(m.step==="review"){
     const items=m.items||[];
     body=items.length?items.map((row,idx)=>{
@@ -961,7 +963,7 @@ function receiptModalHtml(){
     : m.step==="review" ? `<button class="btn ghost" data-close-modal>Отмена</button><button class="btn" data-rec-save>Добавить в день ${m.day}</button>`
     : `<button class="btn ghost" data-close-modal>Закрыть</button><button class="btn" data-rec-retry>Попробовать снова</button>`;
   return `<div class="modalbg"><div class="modalbox" data-stop>
-    <div class="mhead"><b>Добавить по чеку</b><button data-close-modal>&times;</button></div>
+    <div class="mhead"><b>${isSummary?"Итог дня из трекера":"Добавить по чеку"}</b><button data-close-modal>&times;</button></div>
     <div class="mbody">${body}</div>
     <div class="mfoot">${foot}</div>
   </div></div>`;
@@ -1012,11 +1014,11 @@ async function startReceiptParse(){
   m.step="parsing"; m.error=null; renderModal();
   try{
     const payload=m.imageBase64
-      ? {kind:"receipt",imageBase64:m.imageBase64,imageMediaType:m.imageMediaType}
-      : {kind:"receipt",text:m.text};
+      ? {kind:"receipt",mode:m.mode,imageBase64:m.imageBase64,imageMediaType:m.imageMediaType}
+      : {kind:"receipt",mode:m.mode,text:m.text};
     const items=await callAI(payload);
     if(modalState!==m) return;
-    if(!Array.isArray(items)||!items.length){ m.step="error"; m.error="Не нашлось ни одного продукта на чеке."; renderModal(); return; }
+    if(!Array.isArray(items)||!items.length){ m.step="error"; m.error=m.mode==="summary"?"Не удалось найти итоги дня на экране.":"Не нашлось ни одного продукта на чеке."; renderModal(); return; }
     m.items=items.map(it=>{
       it=it||{};
       return {name:typeof it.name==="string"?it.name:"",servingLabel:typeof it.servingLabel==="string"?it.servingLabel:"",
@@ -1033,17 +1035,19 @@ function commitReceiptItems(){
   const m=modalState; if(!m||!m.items) return;
   const toSave=m.items.filter(r=>r.keep!==false && validateFoodRow(r).valid);
   if(!toSave.length){ toast("Нечего сохранять"); return; }
-  const day=m.day;
+  const day=m.day, isSummary=m.mode==="summary";
   if(!S.foodlog[day]) S.foodlog[day]={entries:[]};
   toSave.forEach(row=>{
     const data={name:row.name.trim(),servingLabel:row.servingLabel||"",calories:Number(row.calories),protein:Number(row.protein),carbs:Number(row.carbs),fat:Number(row.fat),fiber:Number(row.fiber)||0,sugar:Number(row.sugar)||0,sodium:Number(row.sodium)||0};
-    const f=addFood(data);
+    // итог дня из трекера — разовая запись сразу в дневник, не в библиотеку продуктов:
+    // иначе при ежедневном использовании библиотека забивалась бы одноразовыми "итогами"
+    const f=isSummary?Object.assign({id:null},data):addFood(data);
     S.foodlog[day].entries.push({id:uid(),foodId:f.id,name:f.name,servingLabel:f.servingLabel||"",qty:1,
       calories:f.calories,protein:f.protein,carbs:f.carbs,fat:f.fat,fiber:f.fiber||0,sugar:f.sugar||0,sodium:f.sodium||0});
   });
   save();
   closeModal(); renderFood(); renderLibrary();
-  toast(toSave.length+" "+(toSave.length===1?"продукт добавлен":"продуктов добавлено"));
+  toast(toSave.length+" "+(isSummary?(toSave.length===1?"итог добавлен":"итогов добавлено"):(toSave.length===1?"продукт добавлен":"продуктов добавлено")));
 }
 
 /* ============ модалка: импорт продуктов списком (JSON) ============ */
@@ -1151,6 +1155,7 @@ function renderFood(){
   <div id="foodEntries" style="margin-top:14px">${foodEntryRowsHtml(day)}</div>
   <button class="addrow" data-open-quickadd>+ Добавить продукт или приём пищи</button>
   <button class="addrow" data-open-receipt>Добавить по чеку (фото или текст)</button>
+  <button class="addrow" data-open-summary>Добавить итог дня из трекера (скриншот MyFitnessPal и т.п.)</button>
 
   <details style="margin-top:24px">
     <summary style="cursor:pointer;color:var(--muted);font-family:var(--disp);font-size:14px">Справка по калориям и весу ▾</summary>
@@ -1183,7 +1188,8 @@ function renderFood(){
   </details>`;
   document.getElementById("p-food").innerHTML=h;
   document.querySelector("[data-open-quickadd]").addEventListener("click",()=>openQuickAddModal(day));
-  document.querySelector("[data-open-receipt]").addEventListener("click",()=>openReceiptModal(day));
+  document.querySelector("[data-open-receipt]").addEventListener("click",()=>openReceiptModal(day,"items"));
+  document.querySelector("[data-open-summary]").addEventListener("click",()=>openReceiptModal(day,"summary"));
   document.querySelectorAll("[data-rm-entry]").forEach(b=>b.addEventListener("click",()=>removeLogEntry(day,b.getAttribute("data-rm-entry"))));
   document.querySelectorAll("[data-rm-group]").forEach(b=>b.addEventListener("click",()=>removeLogGroup(day,b.getAttribute("data-rm-group"))));
 }

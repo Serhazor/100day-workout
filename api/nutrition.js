@@ -7,7 +7,21 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // Vercel body limit ~ ниже, но �
 
 const clean = (v) => String(v ?? '').slice(0, MAX_TEXT);
 
-function receiptPrompt(hasImage, text) {
+function receiptPrompt(hasImage, text, mode) {
+  if (mode === 'summary') {
+    return 'Это скриншот или текст экрана приложения-трекера питания (например MyFitnessPal, Lifesum, ' +
+      'Yazio) с ИТОГОВЫМИ значениями за день — это НЕ чек из магазина, и отдельных позиций тут может не ' +
+      'быть вовсе, только суммы.\n' +
+      (hasImage ? 'Посмотри на приложенный скриншот.' : 'Текст с экрана:\n' + clean(text)) + '\n\n' +
+      'Найди суммарные итоговые числа за весь день (Calories/Total, белки/protein, углеводы/carbs, ' +
+      'жиры/fat — и клетчатку/сахар/натрий, если они показаны). Это уже готовые итоги за день, а НЕ ' +
+      'данные на 100 г или на одну порцию — не пересчитывай, не нормализуй, возьми числа как есть с экрана.\n' +
+      'Ответь ТОЛЬКО JSON-массивом из РОВНО ОДНОГО объекта, без какого-либо другого текста, в точности ' +
+      'такого вида:\n' +
+      '[{"name":"Итог дня (MyFitnessPal)","servingLabel":"весь день","calories":1850,"protein":120,"carbs":180,"fat":60,"fiber":0,"sugar":0,"sodium":0}]\n' +
+      '"name" — по-русски, коротко указывает источник (например "Итог дня (MyFitnessPal)"). Поле ' +
+      '"servingLabel" всегда "весь день". Если какого-то показателя на экране нет — поставь 0, а не оценку.';
+  }
   return 'Ты извлекаешь из чека из магазина или ресторана продукты питания и напитки для трекера калорий.\n' +
     (hasImage ? 'Посмотри на приложенное фото чека.' : 'Текст чека:\n' + clean(text)) + '\n\n' +
     'Для каждого отдельного продукта или напитка (игнорируй налог, чаевые, итог, скидки, баллы лояльности ' +
@@ -70,7 +84,8 @@ export default async function handler(req, res) {
       } else if (!body.text || !body.text.trim()) {
         return res.status(400).json({ error: 'invalid_request' });
       }
-      prompt = receiptPrompt(hasImage, body.text);
+      const mode = body.mode === 'summary' ? 'summary' : 'items';
+      prompt = receiptPrompt(hasImage, body.text, mode);
     } else {
       if (!body.name || !body.name.trim()) {
         return res.status(400).json({ error: 'invalid_request' });
