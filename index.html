@@ -133,6 +133,64 @@ td.n{font-family:var(--disp);font-size:16px}
 }
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s ease}}
 @media (max-width:420px){.daynum{font-size:62px}.scale b{font-size:25px}}
+
+/* ---------- питание: дневник и библиотека ---------- */
+.flrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:2px;margin-bottom:6px;background:var(--iron2)}
+.flrow .nm{flex:1;font-size:14px}
+.flrow .nm span{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
+.flrow .kc{font-family:var(--disp);font-size:15px;color:var(--brass);white-space:nowrap}
+.flrow button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:4px}
+.flrow button:hover{color:var(--rust)}
+.addrow{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;border:1px dashed var(--line);background:none;color:var(--muted);font-family:var(--body);font-size:14px;cursor:pointer;border-radius:2px;margin-top:4px}
+.addrow:hover{border-color:var(--brass);color:var(--brass)}
+.fltotals{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:14px 0}
+.fltotals div{background:var(--iron);padding:9px 6px;text-align:center}
+.fltotals b{font-family:var(--disp);font-size:18px;font-weight:400;display:block}
+.fltotals b.over{color:var(--rust)}
+.fltotals span{font-size:10.5px;color:var(--muted)}
+
+.libtabs{display:flex;gap:2px;margin:14px 0 10px}
+.libtabs button{background:none;border:1px solid var(--line);color:var(--muted);font-family:var(--disp);font-size:14px;padding:7px 14px;cursor:pointer;border-radius:2px}
+.libtabs button.on{color:var(--paper);border-color:var(--brass);background:var(--iron2)}
+.libcard{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:2px;margin-bottom:6px}
+.libcard .nm{flex:1;font-size:14px;font-weight:500}
+.libcard .nm span{display:block;font-size:11.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.libcard .mm{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.libcard button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px}
+.libcard button:hover{color:var(--brass)}
+.libcard button.star.on{color:var(--brass)}
+.searchbar{width:100%;background:var(--iron2);border:1px solid var(--line);color:var(--paper);padding:10px 12px;font-family:var(--body);font-size:14px;border-radius:2px;margin-bottom:10px}
+.emptylib{padding:26px 10px;text-align:center;color:var(--muted);font-size:13.5px}
+
+/* модальные окна */
+.modalbg{position:fixed;inset:0;background:rgba(15,18,20,.6);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.modalbox{width:min(460px,100%);max-height:88vh;overflow-y:auto;background:var(--iron);border:1px solid var(--line)}
+.mhead{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.mhead b{font-family:var(--disp);font-size:17px;font-weight:400}
+.mhead button{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+.mbody{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.mfoot{padding:12px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+.frow{display:flex;flex-direction:column;gap:4px}
+.frow label{font-size:12px;color:var(--muted)}
+.frow input,.frow textarea,.frow select{background:var(--iron2);border:1px solid var(--line);color:var(--paper);padding:9px 10px;font-family:var(--body);font-size:14px;border-radius:2px;width:100%}
+.frowgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:12px;color:var(--muted)}
+.errline{font-size:12.5px;color:var(--rust);border-left:2px solid var(--rust);padding-left:8px}
+.bulktext{min-height:110px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;resize:vertical}
+.bulkrow{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid #2E383D;font-size:13px}
+.bulkrow .nm{flex:1}
+.bulkrow.bad{color:var(--rust)}
+.recdrop{border:1px dashed var(--line);padding:16px;text-align:center;color:var(--muted);cursor:pointer;font-size:13px;border-radius:2px}
+.recdrop img{max-width:100%;max-height:160px;display:block;margin:0 auto}
+.recrow{border:1px solid var(--line);padding:10px;margin-bottom:8px;border-radius:2px}
+.recrow.bad{border-color:var(--rust)}
+.recrow .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.recrow .hd input[type=text]{flex:1}
+.recrow .rg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.recrow .rg label{font-size:10.5px;color:var(--muted);display:block;margin-bottom:2px}
+.recrow .rg input{padding:6px 7px;font-size:12.5px}
+
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--paper);color:var(--iron);padding:10px 18px;border-radius:2px;font-size:13.5px;z-index:80;box-shadow:0 6px 20px rgba(0,0,0,.4)}
 </style>
 </head>
 <body>
@@ -162,6 +220,7 @@ td.n{font-family:var(--disp);font-size:16px}
   <button role="tab" aria-selected="false" data-p="plan">План</button>
   <button role="tab" aria-selected="false" data-p="weight">Вес</button>
   <button role="tab" aria-selected="false" data-p="food">Питание</button>
+  <button role="tab" aria-selected="false" data-p="library">Продукты</button>
   <button role="tab" aria-selected="false" data-p="print">Планер</button>
 </nav>
 
@@ -187,6 +246,8 @@ td.n{font-family:var(--disp);font-size:16px}
 
 <section class="panel" id="p-food"></section>
 
+<section class="panel" id="p-library"></section>
+
 <section class="panel" id="p-print">
   <p class="small noprint">Ниже — недельные листы под рукописный планер. Печатай (Ctrl/Cmd+P) — на каждой странице одна неделя, пустые клетки под галочки, вес и заметки. Или просто переписывай в свой планер прямо с экрана.</p>
   <div id="sheets"></div>
@@ -210,6 +271,9 @@ td.n{font-family:var(--disp);font-size:16px}
 </div>
 
 </div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
 
 <script>
 /* ---------- данные программы ---------- */
@@ -335,7 +399,12 @@ function dayPlan(d){
 const DOW=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
 /* ---------- состояние ---------- */
-let S={start:"2026-09-05",done:{},weights:{}};
+let S={start:"2026-09-05",done:{},weights:{},foods:[],meals:[],foodlog:{}};
+function withDefaults(s){
+  // на случай старой сохранённой версии без этих полей — иначе первый же save() их потеряет
+  s.foods=s.foods||[]; s.meals=s.meals||[]; s.foodlog=s.foodlog||{};
+  return s;
+}
 let view=1, mem=null;
 const KEY="hundred:v2", CFGKEY="hundred:cfg";
 const hasCloud=typeof window.storage!=="undefined" && window.storage && window.storage.get;
@@ -368,14 +437,14 @@ function setSync(s){syncState=s;const el=document.getElementById("syncst");if(el
 
 async function load(){
   // 1. локальная копия — она всегда первична и мгновенна
-  if(hasCloud){try{const r=await window.storage.get(KEY); if(r&&r.value) S=JSON.parse(r.value);}catch(e){}}
-  else {const v=localGet(); if(v) S=v;}
+  if(hasCloud){try{const r=await window.storage.get(KEY); if(r&&r.value) S=withDefaults(JSON.parse(r.value));}catch(e){}}
+  else {const v=localGet(); if(v) S=withDefaults(v);}
   readCfg();
   if(!syncOn()){setSync("off");return;}
   // 2. если на сервере версия свежее — забираем её
   try{
     const remote=await pull();
-    if(remote && (remote.updatedAt||0) > (S.updatedAt||0)){S=remote; localSet();}
+    if(remote && (remote.updatedAt||0) > (S.updatedAt||0)){S=withDefaults(remote); localSet();}
     setSync("ok");
   }catch(e){setSync("err");}
 }
@@ -392,8 +461,13 @@ async function save(){
   },1200);
 }
 function todayNum(){
-  const ms=new Date().setHours(0,0,0,0)-new Date(S.start+"T00:00:00").getTime();
-  return Math.min(100,Math.max(1,Math.floor(ms/864e5)+1));
+  // считаем по календарным Y-M-D через Date.UTC, а не вычитанием миллисекунд —
+  // иначе день перевода часов даёт разницу не в 24 часа и номер дня съезжает на одну сутки
+  const [sy,sm,sd]=S.start.split("-").map(Number);
+  const now=new Date();
+  const startUTC=Date.UTC(sy,sm-1,sd);
+  const nowUTC=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+  return Math.min(100,Math.max(1,Math.floor((nowUTC-startUTC)/864e5)+1));
 }
 function dateOf(d){
   const t=new Date(S.start+"T00:00:00"); t.setDate(t.getDate()+d-1);
@@ -459,33 +533,659 @@ function renderPlan(){
   document.getElementById("weeks").innerHTML=h;
 }
 
+/* ============ питание: общие утилиты ============ */
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function r1(x){return Math.round((Number(x)||0)*10)/10;}
+function uid(){return "id-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9);}
+function toast(msg){
+  const root=document.getElementById("toastRoot");
+  root.innerHTML=`<div class="toast">${esc(msg)}</div>`;
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>{root.innerHTML="";},2200);
+}
+function bumpUse(kind,id){
+  const arr=kind==="food"?S.foods:S.meals;
+  const it=arr.find(x=>x.id===id); if(it) it.useCount=(it.useCount||0)+1;
+}
+function dayMacroTargets(day){
+  const p=dayPlan(day), b=blockOfWeek(Math.min(14,p.week));
+  const isRef=!!(b.refeed && !p.light && (day-1)%7===5);
+  return {kcal:isRef?b.kcal+280:b.kcal, p:b.p, f:isRef?b.f-15:b.f, c:isRef?b.c+70:b.c, isRef};
+}
+
+/* ============ дневник питания (по дням программы) ============ */
+function foodLogTotals(day){
+  const entries=(S.foodlog[day]&&S.foodlog[day].entries)||[];
+  const t={calories:0,protein:0,carbs:0,fat:0};
+  entries.forEach(e=>{t.calories+=e.calories||0;t.protein+=e.protein||0;t.carbs+=e.carbs||0;t.fat+=e.fat||0;});
+  return t;
+}
+function addLogEntry(day,food,qty){
+  qty=qty>0?qty:1;
+  if(!S.foodlog[day]) S.foodlog[day]={entries:[]};
+  S.foodlog[day].entries.push({
+    id:uid(),foodId:food.id,name:food.name,servingLabel:food.servingLabel||"",qty:qty,
+    calories:r1(food.calories*qty),protein:r1(food.protein*qty),carbs:r1(food.carbs*qty),fat:r1(food.fat*qty),
+    fiber:r1((food.fiber||0)*qty),sugar:r1((food.sugar||0)*qty),sodium:Math.round((food.sodium||0)*qty)
+  });
+  bumpUse("food",food.id);
+  save(); renderFood();
+  toast(food.name+" добавлено");
+}
+function addMealLogEntries(day,meal,mult){
+  mult=mult>0?mult:1;
+  if(!S.foodlog[day]) S.foodlog[day]={entries:[]};
+  const gid=uid();
+  (meal.items||[]).forEach(it=>{
+    S.foodlog[day].entries.push({
+      id:uid(),groupId:gid,mealName:meal.name,foodId:it.foodId,name:it.name,servingLabel:it.servingLabel||"",
+      qty:r1(it.qty*mult),calories:r1(it.calories*mult),protein:r1(it.protein*mult),carbs:r1(it.carbs*mult),fat:r1(it.fat*mult)
+    });
+  });
+  bumpUse("meal",meal.id);
+  save(); renderFood();
+  toast(meal.name+" добавлено");
+}
+function removeLogEntry(day,id){
+  if(!S.foodlog[day]) return;
+  S.foodlog[day].entries=S.foodlog[day].entries.filter(e=>e.id!==id);
+  save(); renderFood();
+}
+function removeLogGroup(day,gid){
+  if(!S.foodlog[day]) return;
+  S.foodlog[day].entries=S.foodlog[day].entries.filter(e=>e.groupId!==gid);
+  save(); renderFood();
+}
+function foodEntryRowsHtml(day){
+  const entries=(S.foodlog[day]&&S.foodlog[day].entries)||[];
+  if(!entries.length) return `<p class="small">Пока ничего не занесено.</p>`;
+  const grouped=[], seen={};
+  entries.forEach(e=>{
+    if(e.groupId){
+      if(seen[e.groupId]!=null){grouped[seen[e.groupId]].sub.push(e);grouped[seen[e.groupId]].calories+=e.calories;return;}
+      seen[e.groupId]=grouped.length;
+      grouped.push({id:e.groupId,isGroup:true,name:e.mealName,calories:e.calories,sub:[e]});
+    } else grouped.push(e);
+  });
+  return grouped.map(e=>{
+    if(e.isGroup) return `<div class="flrow"><div class="nm">${esc(e.name)}<span>приём пищи · ${e.sub.length} продуктов</span></div><div class="kc">${Math.round(e.calories)} ккал</div><button data-rm-group="${e.id}" aria-label="Удалить">✕</button></div>`;
+    return `<div class="flrow"><div class="nm">${esc(e.name)}<span>${r1(e.qty)}× ${esc(e.servingLabel||"порция")}</span></div><div class="kc">${Math.round(e.calories)} ккал</div><button data-rm-entry="${e.id}" aria-label="Удалить">✕</button></div>`;
+  }).join("");
+}
+
+/* ============ библиотека: продукты и приёмы пищи ============ */
+function addFood(data){
+  const f=Object.assign({id:uid(),favorite:false,useCount:0,createdAt:Date.now()},data);
+  S.foods.push(f); save(); return f;
+}
+function updateFood(id,data){
+  const f=S.foods.find(x=>x.id===id); if(!f) return;
+  Object.assign(f,data); save();
+}
+function deleteFood(id){ S.foods=S.foods.filter(x=>x.id!==id); save(); renderLibrary(); }
+function toggleFoodFav(id){ const f=S.foods.find(x=>x.id===id); if(!f) return; f.favorite=!f.favorite; save(); renderLibrary(); }
+function createMeal(data){
+  const m=Object.assign({id:uid(),favorite:false,useCount:0,createdAt:Date.now()},data);
+  S.meals.push(m); save(); return m;
+}
+function deleteMeal(id){ S.meals=S.meals.filter(x=>x.id!==id); save(); renderLibrary(); }
+function toggleMealFav(id){ const m=S.meals.find(x=>x.id===id); if(!m) return; m.favorite=!m.favorite; save(); renderLibrary(); }
+
+let libTab="foods", libQuery="";
+function renderLibrary(){
+  const q=libQuery.trim().toLowerCase();
+  let h=`<h2>Продукты</h2>
+  <p class="small">Твоя личная библиотека продуктов и приёмов пищи — заносишь один раз, используешь всю программу.</p>
+  <div class="libtabs">
+    <button class="${libTab==="foods"?"on":""}" data-libtab="foods">Продукты · ${S.foods.length}</button>
+    <button class="${libTab==="meals"?"on":""}" data-libtab="meals">Приёмы пищи · ${S.meals.length}</button>
+  </div>
+  <input class="searchbar" id="libSearch" type="text" placeholder="Поиск…" value="${esc(libQuery)}">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+    <button class="btn" data-new-food>+ Новый продукт</button>
+    ${libTab==="foods"?`<button class="btn ghost" data-open-bulk>Импорт списком</button>`:`<button class="btn ghost" data-new-meal>+ Новый приём пищи</button>`}
+  </div>
+  <div id="libList"></div>`;
+  document.getElementById("p-library").innerHTML=h;
+  renderLibList();
+  document.getElementById("libSearch").addEventListener("input",e=>{libQuery=e.target.value; renderLibList();});
+  document.querySelectorAll("[data-libtab]").forEach(b=>b.addEventListener("click",()=>{libTab=b.getAttribute("data-libtab");libQuery="";renderLibrary();}));
+  document.querySelector("[data-new-food]").addEventListener("click",()=>openFoodModal(null));
+  const bulkBtn=document.querySelector("[data-open-bulk]"); if(bulkBtn) bulkBtn.addEventListener("click",openBulkModal);
+  const mealBtn=document.querySelector("[data-new-meal]"); if(mealBtn) mealBtn.addEventListener("click",()=>openMealModal());
+}
+function renderLibList(){
+  const q=libQuery.trim().toLowerCase();
+  const list=document.getElementById("libList");
+  if(libTab==="foods"){
+    const items=S.foods.filter(f=>!q||f.name.toLowerCase().includes(q))
+      .sort((a,b)=>(b.favorite-a.favorite)||(b.useCount||0)-(a.useCount||0)||a.name.localeCompare(b.name));
+    list.innerHTML=items.length?items.map(f=>`<div class="libcard">
+      <button class="star${f.favorite?" on":""}" data-fav-food="${f.id}">${f.favorite?"★":"☆"}</button>
+      <div class="nm">${esc(f.name)}<span>${esc(f.servingLabel||"")}</span></div>
+      <div class="mm">${Math.round(f.calories)} ккал · Б${r1(f.protein)} У${r1(f.carbs)} Ж${r1(f.fat)}</div>
+      <button data-edit-food="${f.id}">✎</button>
+    </div>`).join(""):`<div class="emptylib">${q?"Ничего не найдено.":"Пока пусто — добавь первый продукт."}</div>`;
+    list.querySelectorAll("[data-fav-food]").forEach(b=>b.addEventListener("click",()=>toggleFoodFav(b.getAttribute("data-fav-food"))));
+    list.querySelectorAll("[data-edit-food]").forEach(b=>b.addEventListener("click",()=>openFoodModal(b.getAttribute("data-edit-food"))));
+  } else {
+    const items=S.meals.filter(m=>!q||m.name.toLowerCase().includes(q))
+      .sort((a,b)=>(b.favorite-a.favorite)||(b.useCount||0)-(a.useCount||0)||a.name.localeCompare(b.name));
+    list.innerHTML=items.length?items.map(m=>{
+      const cals=(m.items||[]).reduce((s,i)=>s+i.calories,0);
+      return `<div class="libcard">
+        <button class="star${m.favorite?" on":""}" data-fav-meal="${m.id}">${m.favorite?"★":"☆"}</button>
+        <div class="nm">${esc(m.name)}<span>${(m.items||[]).length} продуктов</span></div>
+        <div class="mm">${Math.round(cals)} ккал</div>
+        <button data-del-meal="${m.id}">✕</button>
+      </div>`;
+    }).join(""):`<div class="emptylib">${q?"Ничего не найдено.":"Пока пусто — собери первый приём пищи из продуктов."}</div>`;
+    list.querySelectorAll("[data-fav-meal]").forEach(b=>b.addEventListener("click",()=>toggleMealFav(b.getAttribute("data-fav-meal"))));
+    list.querySelectorAll("[data-del-meal]").forEach(b=>b.addEventListener("click",()=>{if(confirm("Удалить приём пищи?"))deleteMeal(b.getAttribute("data-del-meal"));}));
+  }
+}
+
+/* ============ модальные окна: общий каркас ============ */
+let modalState=null;
+function closeModal(){ modalState=null; document.getElementById("modalRoot").innerHTML=""; }
+function renderModal(){
+  const root=document.getElementById("modalRoot");
+  if(!modalState){ root.innerHTML=""; return; }
+  root.innerHTML=modalHtml();
+  wireModalEvents();
+}
+function modalHtml(){
+  const m=modalState;
+  if(m.type==="food") return foodModalHtml();
+  if(m.type==="meal") return mealModalHtml();
+  if(m.type==="quickadd") return quickAddModalHtml();
+  if(m.type==="receipt") return receiptModalHtml();
+  if(m.type==="bulk") return bulkModalHtml();
+  return "";
+}
+function wireModalEvents(){
+  const root=document.getElementById("modalRoot");
+  const bg=root.querySelector(".modalbg");
+  if(!bg) return;
+  bg.addEventListener("click",e=>{ if(e.target===bg) closeModal(); });
+  root.querySelectorAll("[data-close-modal]").forEach(el=>el.addEventListener("click",closeModal));
+  const m=modalState;
+  if(m.type==="food") wireFoodModal();
+  else if(m.type==="meal") wireMealModal();
+  else if(m.type==="quickadd") wireQuickAddModal();
+  else if(m.type==="receipt") wireReceiptModal();
+  else if(m.type==="bulk") wireBulkModal();
+}
+
+/* ============ ИИ: разбор чека и подсказка КБЖУ ============ */
+async function callAI(payload){
+  const r=await fetch("/api/nutrition",{method:"POST",headers:{"content-type":"application/json","x-app-key":cfg.key||""},body:JSON.stringify(payload)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){ const err=new Error(j.error||"error"); err.code=j.error; throw err; }
+  return j.data;
+}
+function aiErrorCopy(code){
+  const map={
+    unauthorized:"Ключ синхронизации не задан или неверный.",
+    not_configured:"ИИ-функции не настроены — на Vercel не задан ANTHROPIC_API_KEY.",
+    invalid_request:"Не хватает данных для запроса.",
+    image_too_large:"Фото слишком большое — попробуй сжать или обрезать.",
+    rate_limited:"Слишком много запросов подряд — подожди немного.",
+    upstream_error:"Временная ошибка сервиса — попробуй ещё раз.",
+    invalid_json:"Не удалось разобрать ответ — попробуй ещё раз или введи вручную.",
+    empty_completion:"Пустой ответ — попробуй ещё раз."
+  };
+  return map[code]||"Что-то пошло не так — попробуй ещё раз.";
+}
+
+/* ============ модалка: продукт (+ ИИ-подсказка) ============ */
+function openFoodModal(id){
+  const f=id?S.foods.find(x=>x.id===id):null;
+  modalState={type:"food",id:id,logTo:null,
+    data:{name:f?f.name:"",servingLabel:f?f.servingLabel:"",calories:f?f.calories:"",protein:f?f.protein:"",carbs:f?f.carbs:"",fat:f?f.fat:""},
+    lookupLoading:false,lookupError:null};
+  renderModal();
+}
+function foodModalHtml(){
+  const m=modalState, editing=!!m.id, d=m.data;
+  return `<div class="modalbg"><div class="modalbox" data-stop>
+    <div class="mhead"><b>${editing?"Изменить продукт":"Новый продукт"}</b><button data-close-modal>&times;</button></div>
+    <div class="mbody">
+      <div class="frow"><label>Название</label>
+        <div style="display:flex;gap:8px">
+          <input id="f-name" type="text" value="${esc(d.name)}" placeholder="например, Морковь" style="flex:1">
+          <button class="btn ghost" id="f-lookup" ${m.lookupLoading?"disabled":""} style="white-space:nowrap">${m.lookupLoading?"Ищу…":"ИИ-подсказка"}</button>
+        </div>
+      </div>
+      ${m.lookupError?`<div class="errline">${esc(m.lookupError)}</div>`:""}
+      <div class="frow"><label>Порция</label><input id="f-serving" type="text" value="${esc(d.servingLabel)}" placeholder="например, 1 средняя (61 г)"></div>
+      <div class="frowgrid">
+        <div class="frow"><label>Ккал</label><input id="f-cal" type="number" step="any" value="${d.calories}"></div>
+        <div class="frow"><label>Белок, г</label><input id="f-protein" type="number" step="any" value="${d.protein}"></div>
+        <div class="frow"><label>Углеводы, г</label><input id="f-carbs" type="number" step="any" value="${d.carbs}"></div>
+        <div class="frow"><label>Жиры, г</label><input id="f-fat" type="number" step="any" value="${d.fat}"></div>
+      </div>
+      <p class="hint">Оценка ИИ — не данные с упаковки, годится только для примерного учёта.</p>
+    </div>
+    <div class="mfoot">
+      ${editing?`<button class="btn ghost" data-del-food="${m.id}" style="margin-right:auto;color:var(--rust);border-color:var(--rust)">Удалить</button>`:""}
+      <button class="btn ghost" data-close-modal>Отмена</button>
+      <button class="btn" id="f-save">${editing?"Сохранить":(m.logTo?"Добавить в дневник":"Добавить")}</button>
+    </div>
+  </div></div>`;
+}
+function wireFoodModal(){
+  const root=document.getElementById("modalRoot");
+  root.querySelector("#f-save").addEventListener("click",submitFoodModal);
+  root.querySelector("#f-lookup").addEventListener("click",startFoodLookup);
+  const delBtn=root.querySelector("[data-del-food]");
+  if(delBtn) delBtn.addEventListener("click",()=>{ if(confirm("Удалить продукт из библиотеки?")){ const id=delBtn.getAttribute("data-del-food"); closeModal(); deleteFood(id); } });
+}
+function submitFoodModal(){
+  const data={
+    name:(document.getElementById("f-name").value||"").trim()||"Без названия",
+    servingLabel:(document.getElementById("f-serving").value||"").trim(),
+    calories:parseFloat(document.getElementById("f-cal").value)||0,
+    protein:parseFloat(document.getElementById("f-protein").value)||0,
+    carbs:parseFloat(document.getElementById("f-carbs").value)||0,
+    fat:parseFloat(document.getElementById("f-fat").value)||0
+  };
+  const m=modalState;
+  if(m.id){ updateFood(m.id,data); closeModal(); renderLibrary(); toast("Продукт обновлён"); }
+  else{
+    const f=addFood(data);
+    if(m.logTo!=null) addLogEntry(m.logTo,f,1); else toast("Продукт добавлен");
+    closeModal(); renderLibrary();
+  }
+}
+async function startFoodLookup(){
+  const m=modalState; if(!m||m.type!=="food") return;
+  if(!cfg.key){ toast("Сначала включи синхронизацию внизу страницы (нужен ключ APP_KEY)"); return; }
+  const name=(document.getElementById("f-name").value||"").trim();
+  if(!name){ toast("Сначала введи название продукта"); return; }
+  const servingLabel=(document.getElementById("f-serving").value||"").trim();
+  const existing={
+    calories:document.getElementById("f-cal").value, protein:document.getElementById("f-protein").value,
+    carbs:document.getElementById("f-carbs").value, fat:document.getElementById("f-fat").value
+  };
+  m.lookupLoading=true; m.lookupError=null; renderModal();
+  try{
+    const r=await callAI({kind:"lookup",name,servingLabel});
+    if(modalState!==m) return;
+    m.data={
+      name:name,
+      servingLabel:servingLabel||(typeof r.servingLabel==="string"?r.servingLabel:""),
+      calories:existing.calories!==""?existing.calories:(Number(r.calories)||0),
+      protein:existing.protein!==""?existing.protein:(Number(r.protein)||0),
+      carbs:existing.carbs!==""?existing.carbs:(Number(r.carbs)||0),
+      fat:existing.fat!==""?existing.fat:(Number(r.fat)||0)
+    };
+    m.lookupLoading=false; renderModal();
+  }catch(e){
+    if(modalState!==m) return;
+    m.lookupLoading=false; m.lookupError=aiErrorCopy(e&&e.code); renderModal();
+  }
+}
+
+/* ============ модалка: приём пищи ============ */
+function openMealModal(){
+  modalState={type:"meal",name:"",items:[],search:""};
+  renderModal();
+}
+function mealModalHtml(){
+  const m=modalState;
+  const total=(m.items||[]).reduce((s,i)=>({calories:s.calories+i.calories,protein:s.protein+i.protein,carbs:s.carbs+i.carbs,fat:s.fat+i.fat}),{calories:0,protein:0,carbs:0,fat:0});
+  const q=(m.search||"").trim().toLowerCase();
+  const results=q?S.foods.filter(f=>f.name.toLowerCase().includes(q)).slice(0,8):[];
+  return `<div class="modalbg"><div class="modalbox" data-stop>
+    <div class="mhead"><b>Новый приём пищи</b><button data-close-modal>&times;</button></div>
+    <div class="mbody">
+      <div class="frow"><label>Название</label><input id="meal-name" type="text" value="${esc(m.name)}" placeholder="например, Завтрак спортсмена"></div>
+      <div class="frow"><label>Добавить продукты</label><input id="meal-search" type="text" value="${esc(m.search)}" placeholder="Поиск по библиотеке…"></div>
+      <div id="mealResults">${results.map(f=>`<div class="flrow"><div class="nm">${esc(f.name)}<span>${esc(f.servingLabel||"")} · ${Math.round(f.calories)} ккал</span></div><button data-meal-add="${f.id}" aria-label="Добавить">+</button></div>`).join("")}</div>
+      ${m.items.length?`<div id="mealItems">${m.items.map((it,idx)=>`<div class="flrow"><div class="nm">${esc(it.name)}</div><div class="kc">${Math.round(it.calories*it.qty)} ккал</div><button data-meal-rm="${idx}" aria-label="Убрать">✕</button></div>`).join("")}</div>
+      <p class="small">Итого: ${Math.round(total.calories)} ккал · Б${r1(total.protein)} У${r1(total.carbs)} Ж${r1(total.fat)}</p>`:`<p class="hint">Найди продукты выше и нажми «+», чтобы собрать приём пищи.</p>`}
+    </div>
+    <div class="mfoot">
+      <button class="btn ghost" data-close-modal>Отмена</button>
+      <button class="btn" id="meal-save">Сохранить</button>
+    </div>
+  </div></div>`;
+}
+function wireMealModal(){
+  const root=document.getElementById("modalRoot"), m=modalState;
+  root.querySelector("#meal-search").addEventListener("input",e=>{m.search=e.target.value;renderModal();
+    setTimeout(()=>{const el=document.getElementById("meal-search");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},0);});
+  root.querySelectorAll("[data-meal-add]").forEach(b=>b.addEventListener("click",()=>{
+    const f=S.foods.find(x=>x.id===b.getAttribute("data-meal-add")); if(!f) return;
+    m.items.push({foodId:f.id,name:f.name,servingLabel:f.servingLabel,qty:1,calories:f.calories,protein:f.protein,carbs:f.carbs,fat:f.fat});
+    renderModal();
+  }));
+  root.querySelectorAll("[data-meal-rm]").forEach(b=>b.addEventListener("click",()=>{
+    m.items.splice(parseInt(b.getAttribute("data-meal-rm"),10),1); renderModal();
+  }));
+  root.querySelector("#meal-save").addEventListener("click",()=>{
+    const name=(document.getElementById("meal-name").value||"").trim();
+    if(!name){ toast("Дай приёму пищи название"); return; }
+    if(!m.items.length){ toast("Добавь хотя бы один продукт"); return; }
+    createMeal({name,items:m.items}); closeModal(); renderLibrary(); toast("Приём пищи сохранён");
+  });
+}
+
+/* ============ модалка: быстрое добавление в дневник дня ============ */
+function openQuickAddModal(day){ modalState={type:"quickadd",day:day,search:""}; renderModal(); }
+function quickAddModalHtml(){
+  const m=modalState, q=(m.search||"").trim().toLowerCase();
+  const foods=S.foods.filter(f=>!q||f.name.toLowerCase().includes(q)).map(f=>Object.assign({kind:"food"},f));
+  const meals=S.meals.filter(x=>!q||x.name.toLowerCase().includes(q)).map(x=>Object.assign({kind:"meal"},x));
+  const results=foods.concat(meals).sort((a,b)=>(b.favorite-a.favorite)||(b.useCount||0)-(a.useCount||0)).slice(0,30);
+  return `<div class="modalbg"><div class="modalbox" data-stop>
+    <div class="mhead"><b>Добавить в день ${m.day}</b><button data-close-modal>&times;</button></div>
+    <div class="mbody">
+      <input class="searchbar" id="qa-search" type="text" value="${esc(m.search)}" placeholder="Поиск продукта или приёма пищи…" style="margin-bottom:0">
+      <div id="qaResults">${results.length?results.map(r=>{
+        const cals=r.kind==="food"?r.calories:(r.items||[]).reduce((s,i)=>s+i.calories,0);
+        const meta=r.kind==="food"?esc(r.servingLabel||""):((r.items||[]).length+" продуктов");
+        return `<div class="flrow"><div class="nm">${esc(r.name)}<span>${meta}</span></div><div class="kc">${Math.round(cals)} ккал</div><button data-qa-add="${r.kind}:${r.id}" aria-label="Добавить">+</button></div>`;
+      }).join(""):(q?`<div class="emptylib">Ничего не найдено. <a href="#" id="qa-create" style="color:var(--brass)">Добавить «${esc(m.search)}» как новый продукт</a></div>`:`<div class="emptylib">Начни печатать, чтобы найти продукт.</div>`)}</div>
+    </div>
+    <div class="mfoot"><button class="btn ghost" data-close-modal>Закрыть</button></div>
+  </div></div>`;
+}
+function wireQuickAddModal(){
+  const root=document.getElementById("modalRoot"), m=modalState;
+  root.querySelector("#qa-search").addEventListener("input",e=>{m.search=e.target.value;renderModal();
+    setTimeout(()=>{const el=document.getElementById("qa-search");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},0);});
+  root.querySelectorAll("[data-qa-add]").forEach(b=>b.addEventListener("click",()=>{
+    const [kind,id]=b.getAttribute("data-qa-add").split(":");
+    if(kind==="food"){ const f=S.foods.find(x=>x.id===id); if(f){ closeModal(); addLogEntry(m.day,f,1); } }
+    else { const meal=S.meals.find(x=>x.id===id); if(meal){ closeModal(); addMealLogEntries(m.day,meal,1); } }
+  }));
+  const createLink=root.querySelector("#qa-create");
+  if(createLink) createLink.addEventListener("click",e=>{
+    e.preventDefault();
+    const name=m.search, day=m.day;
+    modalState={type:"food",id:null,logTo:day,data:{name,servingLabel:"",calories:"",protein:"",carbs:"",fat:""},lookupLoading:false,lookupError:null};
+    renderModal();
+  });
+}
+
+/* ============ проверка строки продукта (общая для чека и импорта списком) ============ */
+function labelRu(f){return {calories:"калории",protein:"белок",carbs:"углеводы",fat:"жиры"}[f]||f;}
+function validateFoodRow(row){
+  const errors=[];
+  if(!row||typeof row!=="object") return {valid:false,errors:["не объект"],name:null};
+  const name=typeof row.name==="string"?row.name.trim():"";
+  if(!name) errors.push("нужно название");
+  ["calories","protein","carbs","fat"].forEach(f=>{
+    const v=row[f];
+    if(v===""||v==null||isNaN(Number(v))||Number(v)<0) errors.push(labelRu(f)+" — число ≥ 0");
+  });
+  return {valid:errors.length===0,errors:errors,name:name};
+}
+
+/* ============ модалка: добавить по чеку ============ */
+function openReceiptModal(day){
+  modalState={type:"receipt",day:day,step:"input",text:"",imageBase64:null,imageMediaType:null,imagePreviewUrl:null,items:null,error:null};
+  renderModal();
+}
+function receiptModalHtml(){
+  const m=modalState;
+  let body="";
+  if(m.step==="input"){
+    body=`<div class="frow"><label>Текст чека</label><textarea id="rec-text" class="bulktext" style="min-height:90px" placeholder="Вставь текст чека или подтверждения заказа…">${esc(m.text)}</textarea></div>
+    <div class="frow"><label>Или фото чека</label>
+      <label class="recdrop">${m.imagePreviewUrl?`<img src="${m.imagePreviewUrl}">`:"Нажми, чтобы выбрать, или вставь скриншот (Ctrl/Cmd+V)"}
+        <input type="file" id="rec-file" accept="image/*" style="display:none">
+      </label>
+    </div>
+    ${m.error?`<div class="errline">${esc(m.error)}</div>`:""}`;
+  } else if(m.step==="parsing"){
+    body=`<p class="small">Читаю чек…</p>`;
+  } else if(m.step==="review"){
+    const items=m.items||[];
+    body=items.length?items.map((row,idx)=>{
+      const v=validateFoodRow(row);
+      return `<div class="recrow${v.valid?"":" bad"}">
+        <div class="hd"><input type="checkbox" data-rec-keep="${idx}" ${row.keep!==false?"checked":""}><input type="text" data-rec-field="name" data-rec-idx="${idx}" value="${esc(row.name||"")}" placeholder="Название"><button data-rec-rm="${idx}">✕</button></div>
+        <input type="text" data-rec-field="servingLabel" data-rec-idx="${idx}" value="${esc(row.servingLabel||"")}" placeholder="Порция" style="width:100%;margin-bottom:6px">
+        <div class="rg">${["calories","protein","carbs","fat"].map(f=>`<div><label>${labelRu(f)}</label><input type="number" step="any" data-rec-field="${f}" data-rec-idx="${idx}" value="${row[f]==null?"":row[f]}"></div>`).join("")}</div>
+        ${v.valid?"":`<div class="errline">${esc(v.errors.join(", "))}</div>`}
+      </div>`;
+    }).join(""):`<p class="small">Ничего не нашлось — попробуй вставить текст.</p>`;
+  } else if(m.step==="error"){
+    body=`<div class="errline">${esc(m.error||"Что-то пошло не так.")}</div>`;
+  }
+  const foot = m.step==="input" ? `<button class="btn ghost" data-close-modal>Отмена</button><button class="btn" data-rec-parse>Распознать</button>`
+    : m.step==="parsing" ? `<button class="btn ghost" data-close-modal>Отмена</button>`
+    : m.step==="review" ? `<button class="btn ghost" data-close-modal>Отмена</button><button class="btn" data-rec-save>Добавить в день ${m.day}</button>`
+    : `<button class="btn ghost" data-close-modal>Закрыть</button><button class="btn" data-rec-retry>Попробовать снова</button>`;
+  return `<div class="modalbg"><div class="modalbox" data-stop>
+    <div class="mhead"><b>Добавить по чеку</b><button data-close-modal>&times;</button></div>
+    <div class="mbody">${body}</div>
+    <div class="mfoot">${foot}</div>
+  </div></div>`;
+}
+function setReceiptImage(file){
+  const m=modalState; if(!m||m.type!=="receipt") return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const dataUrl=reader.result, comma=dataUrl.indexOf(",");
+    m.imageMediaType=file.type||"image/jpeg";
+    m.imageBase64=dataUrl.slice(comma+1);
+    m.imagePreviewUrl=dataUrl;
+    m.error=null;
+    renderModal();
+  };
+  reader.readAsDataURL(file);
+}
+function wireReceiptModal(){
+  const root=document.getElementById("modalRoot"), m=modalState;
+  if(m.step==="input"){
+    const fileInput=root.querySelector("#rec-file");
+    if(fileInput) fileInput.addEventListener("change",e=>{ if(e.target.files&&e.target.files[0]) setReceiptImage(e.target.files[0]); });
+    const dropLabel=root.querySelector(".recdrop");
+    const textEl=root.querySelector("#rec-text");
+    if(textEl) textEl.addEventListener("change",e=>{m.text=e.target.value;});
+  }
+  root.querySelectorAll("[data-rec-field]").forEach(el=>el.addEventListener("change",()=>{
+    const idx=parseInt(el.getAttribute("data-rec-idx"),10), field=el.getAttribute("data-rec-field");
+    if(m.items[idx]) m.items[idx][field]=el.value;
+    renderModal();
+  }));
+  root.querySelectorAll("[data-rec-keep]").forEach(el=>el.addEventListener("change",()=>{
+    const idx=parseInt(el.getAttribute("data-rec-keep"),10);
+    if(m.items[idx]) m.items[idx].keep=el.checked;
+  }));
+  root.querySelectorAll("[data-rec-rm]").forEach(el=>el.addEventListener("click",()=>{
+    m.items.splice(parseInt(el.getAttribute("data-rec-rm"),10),1); renderModal();
+  }));
+  const parseBtn=root.querySelector("[data-rec-parse]"); if(parseBtn) parseBtn.addEventListener("click",startReceiptParse);
+  const saveBtn=root.querySelector("[data-rec-save]"); if(saveBtn) saveBtn.addEventListener("click",commitReceiptItems);
+  const retryBtn=root.querySelector("[data-rec-retry]"); if(retryBtn) retryBtn.addEventListener("click",()=>{m.step="input";m.error=null;renderModal();});
+}
+async function startReceiptParse(){
+  const m=modalState; if(!m||m.type!=="receipt") return;
+  const textEl=document.getElementById("rec-text"); if(textEl) m.text=textEl.value;
+  if(!m.text && !m.imageBase64){ m.error="Вставь текст чека или добавь фото."; renderModal(); return; }
+  if(!cfg.key){ toast("Сначала включи синхронизацию внизу страницы (нужен ключ APP_KEY)"); return; }
+  m.step="parsing"; m.error=null; renderModal();
+  try{
+    const payload=m.imageBase64
+      ? {kind:"receipt",imageBase64:m.imageBase64,imageMediaType:m.imageMediaType}
+      : {kind:"receipt",text:m.text};
+    const items=await callAI(payload);
+    if(modalState!==m) return;
+    if(!Array.isArray(items)||!items.length){ m.step="error"; m.error="Не нашлось ни одного продукта на чеке."; renderModal(); return; }
+    m.items=items.map(it=>{
+      it=it||{};
+      return {name:typeof it.name==="string"?it.name:"",servingLabel:typeof it.servingLabel==="string"?it.servingLabel:"",
+        calories:Number(it.calories)||0,protein:Number(it.protein)||0,carbs:Number(it.carbs)||0,fat:Number(it.fat)||0,
+        fiber:Number(it.fiber)||0,sugar:Number(it.sugar)||0,sodium:Number(it.sodium)||0,keep:true};
+    });
+    m.step="review"; renderModal();
+  }catch(e){
+    if(modalState!==m) return;
+    m.step="error"; m.error=aiErrorCopy(e&&e.code); renderModal();
+  }
+}
+function commitReceiptItems(){
+  const m=modalState; if(!m||!m.items) return;
+  const toSave=m.items.filter(r=>r.keep!==false && validateFoodRow(r).valid);
+  if(!toSave.length){ toast("Нечего сохранять"); return; }
+  const day=m.day;
+  if(!S.foodlog[day]) S.foodlog[day]={entries:[]};
+  toSave.forEach(row=>{
+    const data={name:row.name.trim(),servingLabel:row.servingLabel||"",calories:Number(row.calories),protein:Number(row.protein),carbs:Number(row.carbs),fat:Number(row.fat),fiber:Number(row.fiber)||0,sugar:Number(row.sugar)||0,sodium:Number(row.sodium)||0};
+    const f=addFood(data);
+    S.foodlog[day].entries.push({id:uid(),foodId:f.id,name:f.name,servingLabel:f.servingLabel||"",qty:1,
+      calories:f.calories,protein:f.protein,carbs:f.carbs,fat:f.fat,fiber:f.fiber||0,sugar:f.sugar||0,sodium:f.sodium||0});
+  });
+  save();
+  closeModal(); renderFood(); renderLibrary();
+  toast(toSave.length+" "+(toSave.length===1?"продукт добавлен":"продуктов добавлено"));
+}
+
+/* ============ модалка: импорт продуктов списком (JSON) ============ */
+const BULK_TEMPLATE=[
+  {name:"Пример: Гречка варёная",servingLabel:"100 г",calories:110,protein:4,carbs:21,fat:1,fiber:2.7,sugar:0,sodium:2}
+];
+const BULK_MAX=300;
+function openBulkModal(){ modalState={type:"bulk",raw:"",parsed:null}; renderModal(); }
+function bulkModalHtml(){
+  const m=modalState, p=m.parsed;
+  return `<div class="modalbg"><div class="modalbox" data-stop>
+    <div class="mhead"><b>Импорт продуктов списком</b><button data-close-modal>&times;</button></div>
+    <div class="mbody">
+      <p class="hint">Вставь JSON-массив продуктов по образцу — до ${BULK_MAX} штук за раз.</p>
+      <button class="btn ghost" id="bulk-copy" style="align-self:flex-start">Скопировать образец</button>
+      <textarea id="bulk-text" class="bulktext" placeholder="Вставь JSON сюда…">${esc(m.raw)}</textarea>
+      <div id="bulkPreview">${bulkPreviewHtml()}</div>
+    </div>
+    <div class="mfoot"><button class="btn ghost" data-close-modal>Отмена</button>
+      <button class="btn" id="bulk-commit" ${!p||!p.validCount?"disabled":""}>Импортировать${p&&p.validCount?" "+p.validCount:""}</button></div>
+  </div></div>`;
+}
+function bulkPreviewHtml(){
+  const m=modalState; if(!m||!m.parsed) return "";
+  const p=m.parsed;
+  if(p.error) return `<div class="errline">${esc(p.error)}</div>`;
+  const rows=p.rows.map((r,i)=>`<div class="bulkrow${r.valid?"":" bad"}"><span class="nm">${esc(r.name||("Строка "+(i+1)))}</span>${r.valid?`<span>${Math.round(r.data.calories)} ккал</span>`:`<span>${esc(r.errors.join(", "))}</span>`}</div>`).join("");
+  const total=S.foods.length+S.meals.length+p.validCount;
+  let warn="";
+  if(total>4000) warn=`<div class="errline" style="margin-top:6px">Библиотека приближается к ${total} записям — трекер рассчитан на личное использование, но с запасом хватит на всю программу.</div>`;
+  return `<p class="small">${p.validCount} годится · ${p.rows.length-p.validCount} с ошибками</p>${rows}${warn}`;
+}
+function validateBulkText(text){
+  text=(text||"").trim();
+  if(!text) return null;
+  let arr;
+  try{ arr=JSON.parse(text); }catch(e){ return {error:"Это не похоже на JSON — "+e.message}; }
+  if(!Array.isArray(arr)) return {error:"Ожидается JSON-массив продуктов, как в образце."};
+  if(!arr.length) return {error:"Список пуст."};
+  if(arr.length>BULK_MAX) return {error:"Это "+arr.length+" позиций — раздели на части по "+BULK_MAX+" или меньше."};
+  const rows=arr.map(raw=>{
+    if(!raw||typeof raw!=="object"||Array.isArray(raw)) return {valid:false,errors:["не объект"],name:null};
+    const v=validateFoodRow(raw);
+    if(!v.valid) return {valid:false,errors:v.errors,name:raw.name};
+    return {valid:true,errors:[],name:v.name,data:{
+      name:v.name,servingLabel:typeof raw.servingLabel==="string"?raw.servingLabel.trim():"",
+      calories:Number(raw.calories),protein:Number(raw.protein),carbs:Number(raw.carbs),fat:Number(raw.fat),
+      fiber:(raw.fiber!=null&&raw.fiber!=="")?Number(raw.fiber):0,
+      sugar:(raw.sugar!=null&&raw.sugar!=="")?Number(raw.sugar):0,
+      sodium:(raw.sodium!=null&&raw.sodium!=="")?Number(raw.sodium):0
+    }};
+  });
+  return {rows:rows, validCount:rows.filter(r=>r.valid).length};
+}
+function wireBulkModal(){
+  const root=document.getElementById("modalRoot"), m=modalState;
+  root.querySelector("#bulk-copy").addEventListener("click",copyBulkTemplate);
+  root.querySelector("#bulk-text").addEventListener("input",e=>{
+    m.raw=e.target.value; m.parsed=validateBulkText(e.target.value);
+    const pc=document.getElementById("bulkPreview"); if(pc) pc.innerHTML=bulkPreviewHtml();
+    const btn=document.getElementById("bulk-commit");
+    if(btn){ const n=(m.parsed&&m.parsed.validCount)||0; btn.disabled=!n; btn.textContent="Импортировать"+(n?" "+n:""); }
+  });
+  root.querySelector("#bulk-commit").addEventListener("click",commitBulkImport);
+}
+function commitBulkImport(){
+  const m=modalState; if(!m||!m.parsed||!m.parsed.rows) return;
+  const valid=m.parsed.rows.filter(r=>r.valid).map(r=>r.data);
+  if(!valid.length) return;
+  valid.forEach(d=>addFood(d));
+  closeModal(); renderLibrary();
+  toast(valid.length+" "+(valid.length===1?"продукт импортирован":"продуктов импортировано"));
+}
+function copyBulkTemplate(){
+  const text=JSON.stringify(BULK_TEMPLATE,null,2);
+  const done=()=>toast("Образец скопирован");
+  const fail=()=>toast("Не удалось скопировать — выдели текст и скопируй вручную");
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(fail);
+  else{
+    try{
+      const ta=document.createElement("textarea");
+      ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+      done();
+    }catch(e){ fail(); }
+  }
+}
+
+/* ============ дневная страница «Питание»: дневник + цели + справка ============ */
 function renderFood(){
-  let h=`<h2>Питание</h2>
-  <p>Расчёт под мужчину 105 кг, 35+, ежедневные тренировки и 10–14 тысяч шагов. Расход на старте — около 2900–3000 ккал, к финишу он падает примерно до 2650, поэтому калории снижаются ступенями, а не сразу. Белок держим высоким всю дорогу — на дефиците он защищает мышцы, которые мы строим гирей.</p>
-  <table><tr><th>Блок</th><th>Дни</th><th>Ккал</th><th>Б</th><th>Ж</th><th>У</th></tr>`;
-  BLOCKS.forEach(b=>{h+=`<tr><td>${b.n} · ${b.name}</td><td class="small">${(b.w[0]-1)*7+1}–${b.n===5?100:b.w[1]*7}</td><td class="n">${b.kcal}</td><td class="n">${b.p}</td><td class="n">${b.f}</td><td class="n">${b.c}</td></tr>`;});
-  h+=`</table>
-  <h3>Траектория веса</h3>
-  <p class="small">Ориентиры на конец каждой недели, кг:</p><table><tr><th>Нед.</th><th>Вес</th><th>Нед.</th><th>Вес</th></tr>`;
-  for(let i=1;i<=7;i++) h+=`<tr><td>${i}</td><td class="n">${kg(WPLAN[i])}</td><td>${i+7}</td><td class="n">${kg(WPLAN[i+7])}</td></tr>`;
-  h+=`</table>
-  <h3>Про 88 кг честно</h3>
-  <p>Чтобы прийти к 88 кг ровно на сотый день, нужно есть в среднем около 1800 ккал все сто дней подряд, тренируясь при этом каждый день. Технически это возможно, практически — так теряют не только жир, но и мышцу, сон и желание продолжать.</p>
-  <p>Здесь заложен дефицит 700–900 ккал: старт с 2450 и понижение по мере падения веса, потому что расход снижается вместе с ним. Плюс дефицит докупается шагами — с 10 до 14 тысяч, а не дальнейшим срезанием еды. Расчётный финиш — около 92 кг, минус 13.</p>
-  <p>До 88 кг остаётся ещё 4–5 недель на тех же 1950–2050 ккал. Разница с исходным планом только в дате, зато к сотому дню ты придёшь с рабочей гирей 24 кг, а не выжатым.</p>
-  <h3>Как это есть</h3>
-  <ul class="small">
-    <li>Белок: 185–195 г — примерно 700–750 г готового мяса, рыбы, творога и яиц в день. Разбей на 4 приёма.</li>
-    <li>Жиры не опускай ниже 60 г: тестостерон и суставы. Источники — яйца, оливковое масло, жирная рыба, орехи в меру.</li>
-    <li>Углеводы ставь вокруг тренировки: до и после. В дни ходьбы их меньше всего.</li>
-    <li>Овощи — 500 г в день, они дают объём при копеечных калориях.</li>
-    <li>Соль не режь: на дефиците и с потом её не хватает, отсюда слабость на тренировке.</li>
-    <li>Алкоголь: он не только калории, он ещё и минус восстановление на 2–3 дня.</li>
-  </ul>
-  <h3>Пересчёт каждые 14 дней</h3>
-  <p class="small">Сравни средний вес за последние 7 дней с планом. Отстаёшь больше чем на 1 кг — сначала плюс 1500 шагов, потом уже минус 100 ккал углеводов. Опережаешь больше чем на 1,5 кг — добавь 100 ккал: слишком быстрая потеря забирает мышцы и убивает силовые.</p>
-  <div class="note">Если два дня подряд болит поясница или колено, если сон стал рваным, а сила падает третью тренировку подряд — это не лень, а перебор. Неделя на калориях поддержания (+400 ккал) и половинном объёме, потом возвращайся в график.</div>`;
+  const day=view;
+  const targets=dayMacroTargets(day);
+  const totals=foodLogTotals(day);
+  const pct=targets.kcal>0?Math.min(1,totals.calories/targets.kcal):0;
+  const over=totals.calories>targets.kcal;
+  let h=`<h2>Питание — день ${day}</h2>
+  <p class="small">Цели ниже — из плана блока${targets.isRef?" (сегодня загрузочный день)":""}. Заноси, что съел, и сверяйся по ходу дня.</p>
+  <div class="fltotals">
+    <div><b class="${over?"over":""}">${Math.round(totals.calories)}</b><span>из ${targets.kcal} ккал</span></div>
+    <div><b>${r1(totals.protein)}</b><span>из ${targets.p} г белка</span></div>
+    <div><b>${r1(totals.carbs)}</b><span>из ${targets.c} г углеводов</span></div>
+    <div><b>${r1(totals.fat)}</b><span>из ${targets.f} г жиров</span></div>
+  </div>
+  <div class="bar"><i style="width:${Math.min(100,Math.round(pct*100))}%${over?";background:var(--rust)":""}"></i></div>
+  <div id="foodEntries" style="margin-top:14px">${foodEntryRowsHtml(day)}</div>
+  <button class="addrow" data-open-quickadd>+ Добавить продукт или приём пищи</button>
+  <button class="addrow" data-open-receipt>Добавить по чеку (фото или текст)</button>
+
+  <details style="margin-top:24px">
+    <summary style="cursor:pointer;color:var(--muted);font-family:var(--disp);font-size:14px">Справка по калориям и весу ▾</summary>
+    <div style="margin-top:10px">
+      <p>Расчёт под мужчину 105 кг, 35+, ежедневные тренировки и 10–14 тысяч шагов. Расход на старте — около 2900–3000 ккал, к финишу он падает примерно до 2650, поэтому калории снижаются ступенями, а не сразу. Белок держим высоким всю дорогу — на дефиците он защищает мышцы, которые мы строим гирей.</p>
+      <table><tr><th>Блок</th><th>Дни</th><th>Ккал</th><th>Б</th><th>Ж</th><th>У</th></tr>
+      ${BLOCKS.map(b=>`<tr><td>${b.n} · ${b.name}</td><td class="small">${(b.w[0]-1)*7+1}–${b.n===5?100:b.w[1]*7}</td><td class="n">${b.kcal}</td><td class="n">${b.p}</td><td class="n">${b.f}</td><td class="n">${b.c}</td></tr>`).join("")}
+      </table>
+      <h3>Траектория веса</h3>
+      <p class="small">Ориентиры на конец каждой недели, кг:</p><table><tr><th>Нед.</th><th>Вес</th><th>Нед.</th><th>Вес</th></tr>
+      ${(()=>{let t="";for(let i=1;i<=7;i++) t+=`<tr><td>${i}</td><td class="n">${kg(WPLAN[i])}</td><td>${i+7}</td><td class="n">${kg(WPLAN[i+7])}</td></tr>`;return t;})()}
+      </table>
+      <h3>Про 88 кг честно</h3>
+      <p>Чтобы прийти к 88 кг ровно на сотый день, нужно есть в среднем около 1800 ккал все сто дней подряд, тренируясь при этом каждый день. Технически это возможно, практически — так теряют не только жир, но и мышцу, сон и желание продолжать.</p>
+      <p>Здесь заложен дефицит 700–900 ккал: старт с 2450 и понижение по мере падения веса, потому что расход снижается вместе с ним. Плюс дефицит докупается шагами — с 10 до 14 тысяч, а не дальнейшим срезанием еды. Расчётный финиш — около 92 кг, минус 13.</p>
+      <p>До 88 кг остаётся ещё 4–5 недель на тех же 1950–2050 ккал. Разница с исходным планом только в дате, зато к сотому дню ты придёшь с рабочей гирей 24 кг, а не выжатым.</p>
+      <h3>Как это есть</h3>
+      <ul class="small">
+        <li>Белок: 185–195 г — примерно 700–750 г готового мяса, рыбы, творога и яиц в день. Разбей на 4 приёма.</li>
+        <li>Жиры не опускай ниже 60 г: тестостерон и суставы. Источники — яйца, оливковое масло, жирная рыба, орехи в меру.</li>
+        <li>Углеводы ставь вокруг тренировки: до и после. В дни ходьбы их меньше всего.</li>
+        <li>Овощи — 500 г в день, они дают объём при копеечных калориях.</li>
+        <li>Соль не режь: на дефиците и с потом её не хватает, отсюда слабость на тренировке.</li>
+        <li>Алкоголь: он не только калории, он ещё и минус восстановление на 2–3 дня.</li>
+      </ul>
+      <h3>Пересчёт каждые 14 дней</h3>
+      <p class="small">Сравни средний вес за последние 7 дней с планом. Отстаёшь больше чем на 1 кг — сначала плюс 1500 шагов, потом уже минус 100 ккал углеводов. Опережаешь больше чем на 1,5 кг — добавь 100 ккал: слишком быстрая потеря забирает мышцы и убивает силовые.</p>
+      <div class="note">Если два дня подряд болит поясница или колено, если сон стал рваным, а сила падает третью тренировку подряд — это не лень, а перебор. Неделя на калориях поддержания (+400 ккал) и половинном объёме, потом возвращайся в график.</div>
+    </div>
+  </details>`;
   document.getElementById("p-food").innerHTML=h;
+  document.querySelector("[data-open-quickadd]").addEventListener("click",()=>openQuickAddModal(day));
+  document.querySelector("[data-open-receipt]").addEventListener("click",()=>openReceiptModal(day));
+  document.querySelectorAll("[data-rm-entry]").forEach(b=>b.addEventListener("click",()=>removeLogEntry(day,b.getAttribute("data-rm-entry"))));
+  document.querySelectorAll("[data-rm-group]").forEach(b=>b.addEventListener("click",()=>removeLogGroup(day,b.getAttribute("data-rm-group"))));
 }
 
 function renderSheets(){
@@ -532,7 +1232,7 @@ function renderWeight(){
   document.getElementById("wtable").innerHTML=ws.length?h:`<tr><td class="small">Записей пока нет. Взвесься утром и внеси первую цифру.</td></tr>`;
 }
 
-function renderAll(){renderHero();renderToday();renderPlan();renderWeight();renderSheets();}
+function renderAll(){renderHero();renderToday();renderPlan();renderWeight();renderSheets();renderFood();renderLibrary();}
 
 /* ---------- события ---------- */
 document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("click",()=>{
@@ -541,8 +1241,8 @@ document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("
   document.getElementById("p-"+btn.dataset.p).classList.add("on");
   window.scrollTo({top:0});
 }));
-document.getElementById("prev").onclick=()=>{view=Math.max(1,view-1);renderHero();renderToday();renderPlan();};
-document.getElementById("next").onclick=()=>{view=Math.min(100,view+1);renderHero();renderToday();renderPlan();};
+document.getElementById("prev").onclick=()=>{view=Math.max(1,view-1);renderHero();renderToday();renderPlan();renderFood();};
+document.getElementById("next").onclick=()=>{view=Math.min(100,view+1);renderHero();renderToday();renderPlan();renderFood();};
 document.getElementById("wsave").onclick=()=>{
   const v=parseFloat(document.getElementById("win").value.replace(",","."));
   if(!v||v<40||v>250) return;
@@ -550,8 +1250,8 @@ document.getElementById("wsave").onclick=()=>{
 };
 document.getElementById("startdate").onchange=e=>{S.start=e.target.value;view=todayNum();save();renderAll();};
 document.getElementById("resetall").onclick=()=>{
-  if(!confirm("Стереть все отметки и записи веса?")) return;
-  S={start:S.start,done:{},weights:{}};save();renderAll();
+  if(!confirm("Стереть все отметки, записи веса и дневник питания? Продукты и приёмы пищи в библиотеке останутся.")) return;
+  S={start:S.start,done:{},weights:{},foods:S.foods,meals:S.meals,foodlog:{}};save();renderAll();
 };
 
 document.getElementById("syncsave").onclick=async()=>{
@@ -562,18 +1262,26 @@ document.getElementById("syncsave").onclick=async()=>{
   setSync("wait");
   try{
     const remote=await pull();
-    if(remote && (remote.updatedAt||0)>(S.updatedAt||0)){S=remote;localSet();renderAll();}
+    if(remote && (remote.updatedAt||0)>(S.updatedAt||0)){S=withDefaults(remote);localSet();renderAll();}
     else await push();
     setSync("ok");
   }catch(e){setSync("err");}
 };
+
+// вставка скриншота чека прямо в открытую модалку (Ctrl/Cmd+V) — навешивается один раз при загрузке
+document.addEventListener("paste",e=>{
+  if(!modalState || modalState.type!=="receipt" || modalState.step!=="input") return;
+  const files=(e.clipboardData && e.clipboardData.files)?Array.from(e.clipboardData.files):[];
+  const img=files.find(f=>f.type && f.type.indexOf("image/")===0);
+  if(img){ setReceiptImage(img); e.preventDefault(); }
+});
 
 (async()=>{
   await load();
   document.getElementById("syncid").value=cfg.id||"me";
   document.getElementById("startdate").value=S.start;
   view=todayNum();
-  renderFood();renderAll();
+  renderAll();
 })();
 </script>
 </body>
