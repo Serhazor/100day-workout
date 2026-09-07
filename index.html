@@ -191,6 +191,27 @@ td.n{font-family:var(--disp);font-size:16px}
 .recrow .rg input{padding:6px 7px;font-size:12.5px}
 
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--paper);color:var(--iron);padding:10px 18px;border-radius:2px;font-size:13.5px;z-index:80;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+
+/* ---------- статистика ---------- */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:14px 0}
+.stat-tile{background:var(--iron);padding:14px 10px;text-align:center}
+.stat-tile b{font-family:var(--disp);font-size:24px;font-weight:400;display:block;line-height:1.15}
+.stat-tile b.good{color:var(--olive)}
+.stat-tile b.bad{color:var(--rust)}
+.stat-tile span{font-size:11px;color:var(--muted);display:block;margin-top:4px;line-height:1.3}
+
+.blockbar p{margin:0 0 8px}
+
+.heatmap{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:10px}
+.hcell{aspect-ratio:1;border-radius:2px;background:var(--iron3);cursor:pointer;padding:0;border:none;display:block;width:100%;-webkit-appearance:none;appearance:none}
+.hcell.full{background:var(--olive)}
+.hcell.partial{background:var(--brass)}
+.hcell.missed{background:var(--rust);opacity:.55}
+.hcell.today{outline:2px solid var(--brass);outline-offset:1px}
+.hcell:hover{opacity:.8}
+.heatlegend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.heatlegend span{display:inline-flex;align-items:center;gap:6px}
+.heatlegend i{width:10px;height:10px;border-radius:2px;display:inline-block}
 </style>
 </head>
 <body>
@@ -217,6 +238,7 @@ td.n{font-family:var(--disp);font-size:16px}
 
 <nav class="tabs" role="tablist">
   <button role="tab" aria-selected="true" data-p="today">Сегодня</button>
+  <button role="tab" aria-selected="false" data-p="stats">Статистика</button>
   <button role="tab" aria-selected="false" data-p="plan">План</button>
   <button role="tab" aria-selected="false" data-p="weight">Вес</button>
   <button role="tab" aria-selected="false" data-p="food">Питание</button>
@@ -225,6 +247,8 @@ td.n{font-family:var(--disp);font-size:16px}
 </nav>
 
 <section class="panel on" id="p-today"></section>
+
+<section class="panel" id="p-stats"></section>
 
 <section class="panel" id="p-plan">
   <h2>Все 100 дней</h2>
@@ -1354,13 +1378,146 @@ function renderWeight(){
   document.getElementById("wtable").innerHTML=ws.length?h:`<tr><td class="small">Записей пока нет. Взвесься утром и внеси первую цифру.</td></tr>`;
 }
 
-function renderAll(){renderHero();renderToday();renderPlan();renderWeight();renderSheets();renderFood();renderLibrary();}
+/* ============ статистика ============ */
+function dayStatus(d){
+  const p=dayPlan(d), total=p.sess.ex.length;
+  let done=0;
+  for(let i=0;i<total;i++) if(S.done[`${d}:${i}`]) done++;
+  return {total,done,full:total>0&&done===total,partial:done>0&&done<total};
+}
+function computeStreaks(curDay){
+  let cur=0;
+  for(let d=curDay;d>=1;d--){
+    if(dayStatus(d).full){ cur++; continue; }
+    if(d===curDay) continue; // сегодняшний день ещё не закончен — не обрывает серию, пока просто не считается
+    break;
+  }
+  let best=0,run=0;
+  for(let d=1;d<=curDay;d++){ if(dayStatus(d).full){run++; best=Math.max(best,run);} else run=0; }
+  return {cur,best};
+}
+function goToDay(d){
+  view=Math.min(100,Math.max(1,d));
+  renderHero();renderToday();renderPlan();renderFood();
+  document.querySelector('nav.tabs button[data-p="today"]').click();
+}
+function renderMiniWeightChart(){
+  const ws=Object.keys(S.weights).map(Number).sort((a,b)=>a-b);
+  const W_=320,H=110,pad=22;
+  const x=d=>pad+(d-1)/99*(W_-pad-6), y=v=>H-pad-((v-86)/(107-86))*(H-pad-10);
+  let tl="";for(let d=1;d<=100;d+=1){tl+=`${x(d)},${y(targetW(d))} `;}
+  let al=ws.map(d=>`${x(d)},${y(S.weights[d])}`).join(" ");
+  let dots=ws.map(d=>`<circle cx="${x(d)}" cy="${y(S.weights[d])}" r="2" fill="#E9E6DC"/>`).join("");
+  return `<div style="margin-top:10px"><svg viewBox="0 0 ${W_} ${H}" style="width:100%;height:auto">
+    <polyline points="${tl}" fill="none" stroke="#C89438" stroke-width="1.2" stroke-dasharray="4 3"/>
+    ${al?`<polyline points="${al}" fill="none" stroke="#E9E6DC" stroke-width="1.6"/>`:""}${dots}
+  </svg><p class="small">Пунктир — план, сплошная — факт. Подробный график и таблица — на вкладке «Вес».</p></div>`;
+}
+function renderStats(){
+  const curDay=todayNum();
+  const historyEnd=curDay-1;
+  let full=0,partial=0,missed=0;
+  for(let d=1;d<=historyEnd;d++){ const s=dayStatus(d); if(s.full) full++; else if(s.partial) partial++; else missed++; }
+  const adherence=historyEnd>0?Math.round(full/historyEnd*100):0;
+  const {cur:streak,best:bestStreak}=computeStreaks(curDay);
+
+  // вес
+  const ws=Object.keys(S.weights).map(Number).sort((a,b)=>a-b);
+  const goal=targetW(100);
+  const startW=ws.length?S.weights[ws[0]]:null;
+  const lastW=ws.length?S.weights[ws[ws.length-1]]:null;
+  const lastD=ws.length?ws[ws.length-1]:null;
+  const lost=(startW!=null&&lastW!=null)?+(startW-lastW).toFixed(1):null;
+  const remain=(lastW!=null)?+(lastW-goal).toFixed(1):null;
+  const dev=(lastW!=null&&lastD!=null)?+(lastW-targetW(lastD)).toFixed(1):null;
+  let proj=null;
+  if(ws.length>=2){
+    const d0=ws[0],d1=ws[ws.length-1],w0=S.weights[d0],w1=S.weights[d1];
+    if(d1>d0){ const slope=(w1-w0)/(d1-d0); proj=+(w1+slope*(100-d1)).toFixed(1); }
+  }
+
+  // питание
+  const loggedDays=Object.keys(S.foodlog).map(Number).filter(d=>d>=1&&d<=curDay&&(S.foodlog[d].entries||[]).length);
+  let sumKcal=0,sumP=0,sumTargetKcal=0,sumTargetP=0,hitP=0;
+  loggedDays.forEach(d=>{
+    const t=foodLogTotals(d), tg=dayMacroTargets(d);
+    sumKcal+=t.calories; sumP+=t.protein; sumTargetKcal+=tg.kcal; sumTargetP+=tg.p;
+    if(tg.p>0&&t.protein>=tg.p*0.9) hitP++;
+  });
+  const nDays=loggedDays.length;
+  const avgKcal=nDays?Math.round(sumKcal/nDays):0;
+  const avgTargetKcal=nDays?Math.round(sumTargetKcal/nDays):0;
+  const avgPPct=nDays&&sumTargetP>0?Math.round(sumP/sumTargetP*100):0;
+  const loggingRate=curDay?Math.round(nDays/curDay*100):0;
+
+  // блок и общий прогресс
+  const week=Math.min(14,Math.ceil(curDay/7));
+  const b=blockOfWeek(week);
+  const bd0=(b.w[0]-1)*7+1, bd1=Math.min(100,b.w[1]*7);
+  const bDone=Math.min(curDay-bd0+1,bd1-bd0+1), bTotal=bd1-bd0+1;
+
+  // календарь дней
+  let cells="";
+  for(let d=1;d<=100;d++){
+    const isFuture=d>curDay, isToday=d===curDay;
+    let cls="hcell";
+    if(!isFuture){ const s=dayStatus(d); cls+= s.full?" full":(s.partial?" partial":" missed"); }
+    if(isToday) cls+=" today";
+    cells+=`<button type="button" class="${cls}" data-day="${d}" title="День ${d} · ${fmtD(dateOf(d))}"></button>`;
+  }
+
+  document.getElementById("p-stats").innerHTML=`
+  <h2>Статистика</h2>
+  <p class="small">Как идёт программа целиком: дисциплина, вес и питание за все дни от старта. Нажми на клетку в календаре, чтобы открыть тот день.</p>
+
+  <h3>Прогресс</h3>
+  <div class="blockbar">
+    <p class="small">Блок ${b.n} · ${b.name} — день ${bDone} из ${bTotal} этого блока · всего пройдено ${curDay} из 100</p>
+    <div class="bar"><i style="width:${curDay}%"></i></div>
+  </div>
+
+  <h3>Дисциплина</h3>
+  <div class="stat-grid">
+    <div class="stat-tile"><b class="${historyEnd>0?(adherence>=85?"good":(adherence<60?"bad":"")):""}">${adherence}%</b><span>дней выполнено полностью</span></div>
+    <div class="stat-tile"><b class="${streak>0?"good":""}">${streak}</b><span>серия сейчас, дней</span></div>
+    <div class="stat-tile"><b>${bestStreak}</b><span>лучшая серия, дней</span></div>
+    <div class="stat-tile"><b class="${missed>0?"bad":""}">${missed}</b><span>пропущено дней</span></div>
+  </div>
+  <div class="heatmap">${cells}</div>
+  <div class="heatlegend">
+    <span><i style="background:var(--olive)"></i>выполнено</span>
+    <span><i style="background:var(--brass)"></i>частично</span>
+    <span><i style="background:var(--rust);opacity:.55"></i>пропущено</span>
+    <span><i style="background:var(--iron3)"></i>впереди</span>
+  </div>
+
+  <h3>Вес</h3>
+  <div class="stat-grid">
+    <div class="stat-tile"><b>${lost!=null?kg(lost):"—"}</b><span>сброшено, кг</span></div>
+    <div class="stat-tile"><b>${remain!=null?kg(remain):"—"}</b><span>осталось до ${kg(goal)}</span></div>
+    <div class="stat-tile"><b class="${dev!=null?(dev<=0?"good":"bad"):""}">${dev!=null?(dev>0?"+":"")+kg(dev):"—"}</b><span>отклонение от плана</span></div>
+    <div class="stat-tile"><b class="${proj!=null?(proj<=goal+0.5?"good":"bad"):""}">${proj!=null?kg(proj):"—"}</b><span>прогноз на день 100</span></div>
+  </div>
+  ${ws.length?renderMiniWeightChart():'<p class="small">Записей веса ещё нет — внеси первую на вкладке «Вес».</p>'}
+
+  <h3>Питание</h3>
+  <div class="stat-grid">
+    <div class="stat-tile"><b>${nDays}/${curDay}</b><span>дней с записями (${loggingRate}%)</span></div>
+    <div class="stat-tile"><b class="${nDays?(avgKcal>avgTargetKcal?"bad":""):""}">${nDays?avgKcal:"—"}</b><span>ккал в среднем${nDays?" из "+avgTargetKcal:""}</span></div>
+    <div class="stat-tile"><b class="${nDays?(avgPPct>=95?"good":(avgPPct<70?"bad":"")):""}">${nDays?avgPPct+"%":"—"}</b><span>белок в среднем от цели</span></div>
+    <div class="stat-tile"><b>${nDays?Math.round(hitP/nDays*100)+"%":"—"}</b><span>дней с белком в норме</span></div>
+  </div>`;
+  document.querySelectorAll("#p-stats .hcell").forEach(c=>c.addEventListener("click",()=>goToDay(Number(c.dataset.day))));
+}
+
+function renderAll(){renderHero();renderToday();renderPlan();renderWeight();renderSheets();renderFood();renderLibrary();renderStats();}
 
 /* ---------- события ---------- */
 document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("click",()=>{
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===btn));
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
   document.getElementById("p-"+btn.dataset.p).classList.add("on");
+  if(btn.dataset.p==="stats") renderStats();
   window.scrollTo({top:0});
 }));
 document.getElementById("prev").onclick=()=>{view=Math.max(1,view-1);renderHero();renderToday();renderPlan();renderFood();};
