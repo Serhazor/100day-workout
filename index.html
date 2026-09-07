@@ -523,16 +523,28 @@ function estKcal(met,minutes,weightKg){
   minutes=Number(minutes)||0; weightKg=Number(weightKg)||WPLAN[0];
   return Math.max(0,Math.round(met*3.5*weightKg/200*minutes));
 }
+// как estKcal, но с двумя интенсивностями: hardMinutes — по hardMet, остальное — по restMet.
+// hardMinutes=0 сводится ровно к estKcal(restMet,minutes,weightKg) — старые вызовы не ломаются.
+function estKcalMixed(restMet,hardMet,minutes,hardMinutes,weightKg){
+  minutes=Number(minutes)||0; weightKg=Number(weightKg)||WPLAN[0];
+  hardMinutes=Math.max(0,Math.min(Number(hardMinutes)||0,minutes));
+  const restMinutes=minutes-hardMinutes;
+  return Math.max(0,Math.round(weightKg*3.5/200*(hardMinutes*hardMet+restMinutes*restMet)));
+}
 function defaultWorkoutMinutes(p){return p.light?25:45;}
 function defaultWorkoutMET(p){return p.light?3.5:6.5;}
+// met — «фоновая» интенсивность на всю длительность; hardMet — интенсивность той части,
+// что указана отдельно как «в высоком темпе» (актуально для единоборств, игровых видов —
+// там реальная нагрузка рваная: минуты жёсткой работы вперемешку с разбором техники и паузами)
 const ACTIVITY_PRESETS=[
-  {name:"Бег",met:9},{name:"Плавание",met:7},{name:"Велосипед",met:7.5},
-  {name:"Футбол",met:7},{name:"Теннис",met:7},{name:"Йога",met:3},
-  {name:"Ходьба",met:3.5},{name:"Другое",met:6}
+  {name:"Бег",met:9,hardMet:9},{name:"Плавание",met:7,hardMet:7},{name:"Велосипед",met:7.5,hardMet:7.5},
+  {name:"Футбол",met:7,hardMet:10},{name:"Теннис",met:7,hardMet:9},
+  {name:"БЖЖ",met:4.5,hardMet:10},{name:"Йога",met:3,hardMet:3},
+  {name:"Ходьба",met:3.5,hardMet:3.5},{name:"Другое",met:6,hardMet:8}
 ];
 function metForActivity(name){
   const hit=ACTIVITY_PRESETS.find(a=>a.name.toLowerCase()===String(name||"").trim().toLowerCase());
-  return hit?hit.met:6;
+  return hit?{met:hit.met,hardMet:hit.hardMet}:{met:6,hardMet:8};
 }
 // «3×12» → 3 подхода по 12; «5×10 на руку» → 5 по 10; если не разобрать — один пустой подход
 function parseSetsFromRx(rx){
@@ -598,7 +610,7 @@ function renderToday(){
   </div>
   <p class="hint">Оценка по интенсивности дня и весу ${kg(currentWeight())} кг — поправь, если знаешь точнее (например, с часов).</p>
   <button class="btn" id="wo-save">Сохранить тренировку</button>
-  ${extras.length?`<div style="margin-top:14px">${extras.map(x=>`<div class="flrow"><div class="nm">${esc(x.name)}<span>${x.minutes?x.minutes+" мин":""}${x.note?" · "+esc(x.note):""}</span></div><div class="kc">${Math.round(x.kcal)} ккал</div><button data-edit-act="${x.id}" aria-label="Изменить">✎</button></div>`).join("")}</div>`:""}
+  ${extras.length?`<div style="margin-top:14px">${extras.map(x=>`<div class="flrow"><div class="nm">${esc(x.name)}<span>${x.minutes?x.minutes+" мин":""}${x.hardMinutes?" · из них "+x.hardMinutes+" в темпе":""}${x.note?" · "+esc(x.note):""}</span></div><div class="kc">${Math.round(x.kcal)} ккал</div><button data-edit-act="${x.id}" aria-label="Изменить">✎</button></div>`).join("")}</div>`:""}
   <button class="addrow" id="add-activity">+ Добавить другую активность (бег, плавание, футбол…)</button>`;
 
   el.innerHTML=h;
@@ -1199,10 +1211,13 @@ function wireSetLogModal(){
 function openActivityModal(day,id){
   const existing=id?((S.workoutlog[day]&&S.workoutlog[day].extras)||[]).find(x=>x.id===id):null;
   const minutes=existing?existing.minutes:30;
+  const hardMinutes=existing?(existing.hardMinutes||0):0;
+  const metInfo=metForActivity(existing?existing.name:"");
   modalState={type:"activity",day,id:id||null,
     name:existing?existing.name:"",
     minutes:minutes,
-    kcal:existing?existing.kcal:estKcal(metForActivity(existing?existing.name:""),minutes,currentWeight()),
+    hardMinutes:hardMinutes,
+    kcal:existing?existing.kcal:estKcalMixed(metInfo.met,metInfo.hardMet,minutes,hardMinutes,currentWeight()),
     note:existing?(existing.note||""):""};
   renderModal();
 }
@@ -1217,7 +1232,8 @@ function activityModalHtml(){
         <div class="frow"><label>Длительность, мин</label><input id="act-min" type="number" step="any" min="0" value="${m.minutes}"></div>
         <div class="frow"><label>Ккал</label><input id="act-kcal" type="number" step="any" min="0" value="${m.kcal}"></div>
       </div>
-      <p class="hint">Оценка по типу активности, длительности и последнему весу (${kg(currentWeight())} кг) — поправь, если знаешь точнее.</p>
+      <div class="frow"><label>Из них в высоком темпе, мин (необязательно)</label><input id="act-hardmin" type="number" step="any" min="0" value="${m.hardMinutes||""}" placeholder="например, 15"></div>
+      <p class="hint">Оценка — по типу активности, длительности и последнему весу (${kg(currentWeight())} кг). Если часть времени была намного тяжелее остального (например, борьба на фоне разбора техники и пауз в БЖЖ), укажи выше её длительность отдельно — остаток посчитается по фоновому темпу активности, а не по пиковому. Итог всегда можно поправить вручную.</p>
       <div class="frow"><label>Заметка</label><input id="act-note" type="text" value="${esc(m.note)}" placeholder="необязательно"></div>
     </div>
     <div class="mfoot">
@@ -1229,18 +1245,23 @@ function activityModalHtml(){
 }
 function wireActivityModal(){
   const root=document.getElementById("modalRoot"), m=modalState;
+  const curMinutes=()=>Number(document.getElementById("act-min").value)||0;
+  const curHardMinutes=()=>Number(document.getElementById("act-hardmin").value)||0;
   root.querySelectorAll("[data-act-preset]").forEach(b=>b.addEventListener("click",()=>{
-    const name=b.getAttribute("data-act-preset");
-    m.name=name; m.minutes=Number(document.getElementById("act-min").value)||m.minutes;
-    m.kcal=estKcal(metForActivity(name),m.minutes,currentWeight());
+    m.name=b.getAttribute("data-act-preset");
+    m.minutes=curMinutes()||m.minutes; m.hardMinutes=curHardMinutes()||m.hardMinutes;
+    const metInfo=metForActivity(m.name);
+    m.kcal=estKcalMixed(metInfo.met,metInfo.hardMet,m.minutes,m.hardMinutes,currentWeight());
     renderModal();
   }));
   root.querySelector("#act-name").addEventListener("input",e=>{m.name=e.target.value;});
-  root.querySelector("#act-min").addEventListener("input",e=>{
-    m.minutes=e.target.value;
-    const est=estKcal(metForActivity(m.name),m.minutes,currentWeight());
+  const recalc=()=>{
+    const metInfo=metForActivity(m.name);
+    const est=estKcalMixed(metInfo.met,metInfo.hardMet,curMinutes(),curHardMinutes(),currentWeight());
     const kEl=document.getElementById("act-kcal"); if(kEl) kEl.value=est;
-  });
+  };
+  root.querySelector("#act-min").addEventListener("input",recalc);
+  root.querySelector("#act-hardmin").addEventListener("input",recalc);
   root.querySelector("#act-kcal").addEventListener("input",e=>{m.kcal=e.target.value;});
   root.querySelector("#act-note").addEventListener("input",e=>{m.note=e.target.value;});
   const delBtn=root.querySelector("[data-del-act]");
@@ -1254,6 +1275,7 @@ function wireActivityModal(){
     const name=(document.getElementById("act-name").value||"").trim();
     if(!name){ toast("Дай активности название"); return; }
     const minutes=Number(document.getElementById("act-min").value)||0;
+    const hardMinutes=Number(document.getElementById("act-hardmin").value)||0;
     const kcal=Number(document.getElementById("act-kcal").value)||0;
     const note=(document.getElementById("act-note").value||"").trim();
     const day=m.day;
@@ -1261,9 +1283,9 @@ function wireActivityModal(){
     if(!S.workoutlog[day].extras) S.workoutlog[day].extras=[];
     if(m.id){
       const it=S.workoutlog[day].extras.find(x=>x.id===m.id);
-      if(it) Object.assign(it,{name,minutes,kcal,note});
+      if(it) Object.assign(it,{name,minutes,hardMinutes,kcal,note});
     } else {
-      S.workoutlog[day].extras.push({id:uid(),name,minutes,kcal,note});
+      S.workoutlog[day].extras.push({id:uid(),name,minutes,hardMinutes,kcal,note});
     }
     save(); closeModal(); renderToday();
     toast("Активность сохранена");
