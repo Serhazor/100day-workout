@@ -211,7 +211,7 @@ td.n{font-family:var(--disp);font-size:16px}
   <div class="scale">
     <div><b id="wnow">105,0</b><span>текущий вес</span></div>
     <div><b id="wtarget">105,0</b><span>план на сегодня</span></div>
-    <div><b id="wgoal">91,8</b><span>план на день 100</span></div>
+    <div><b id="wgoal">88,0</b><span>план на день 100</span></div>
   </div>
 </header>
 
@@ -366,18 +366,19 @@ const LIGHT_CODES=["E","F","G"];
 const dow=t=>(t.getDay()+6)%7;
 
 const BLOCKS=[
- {n:1,name:"Фундамент",w:[1,3],about:"Только свой вес. Ставим шарнир таза, присед и отжимание, поднимаем шаги.",steps:"10 000 шагов",kcal:2450,p:185,f:80,c:245,refeed:null},
- {n:2,name:"Ввод гири 16 кг",w:[4,6],about:"Гиря входит в становую, махи, тягу и жим.",steps:"12 000 шагов",kcal:2300,p:185,f:75,c:220,refeed:null},
- {n:3,name:"Владение 16 кг",w:[7,9],about:"Заброс, рывок, турецкий подъём. Отжимания усложняются.",steps:"13 000 шагов",kcal:2150,p:190,f:70,c:190,refeed:"Суббота — загрузочный день: +70 г углеводов, жиры −15 г."},
- {n:4,name:"Ввод 24 кг",w:[10,12],about:"24 кг на становой, махах, гоблете и тяге. Жим и рывок остаются на 16 кг.",steps:"14 000 шагов",kcal:2050,p:190,f:65,c:175,refeed:"Один загрузочный день в неделю: +80 г углеводов. Просели сон и сила — два."},
- {n:5,name:"Пик и ретест",w:[13,14],about:"Неделя предельной плотности, затем разгрузка и тест на 99-й день.",steps:"14 000 шагов",kcal:1950,p:195,f:60,c:155,refeed:"Загрузка в день комплекса: +80 г углеводов."}
+ {n:1,name:"Фундамент",w:[1,3],about:"Только свой вес. Ставим шарнир таза, присед и отжимание, поднимаем шаги.",steps:"10 000 шагов",kcal:2150,p:190,f:70,c:190,refeed:null},
+ {n:2,name:"Ввод гири 16 кг",w:[4,6],about:"Гиря входит в становую, махи, тягу и жим.",steps:"12 000 шагов",kcal:2000,p:195,f:65,c:160,refeed:null},
+ {n:3,name:"Владение 16 кг",w:[7,9],about:"Заброс, рывок, турецкий подъём. Отжимания усложняются.",steps:"13 000 шагов",kcal:1850,p:195,f:60,c:130,refeed:"Суббота — загрузочный день: +70 г углеводов, жиры −15 г."},
+ {n:4,name:"Ввод 24 кг",w:[10,12],about:"24 кг на становой, махах, гоблете и тяге. Жим и рывок остаются на 16 кг.",steps:"14 000 шагов",kcal:1750,p:198,f:58,c:110,refeed:"Один загрузочный день в неделю: +70 г углеводов, жиры −15 г. Просели сон и сила — два."},
+ {n:5,name:"Пик и ретест",w:[13,14],about:"Неделя предельной плотности, затем разгрузка и тест на 99-й день.",steps:"14 000 шагов",kcal:1650,p:200,f:55,c:90,refeed:"Загрузка в день комплекса: +70 г углеводов, жиры −15 г."}
 ];
 const blockOfWeek=w=>BLOCKS.find(b=>w>=b.w[0]&&w<=b.w[1])||BLOCKS[4];
 
-// план веса по неделям (кг на конец недели)
-const WPLAN=[105,102.8,101.8,100.9,100.0,99.1,98.2,97.3,96.5,95.7,94.9,94.1,93.4,92.7,92.0];
+// план веса по неделям (кг на конец недели) — рассчитан на финиш 88 кг к дню 100 (105→88, −17 кг),
+// затухающая по неделям кривая (быстрее в начале, медленнее к концу), см. README про пересчёт калорий под эту цель
+const WPLAN=[105,102.0,100.7,99.5,98.3,97.1,95.9,94.7,93.7,92.7,91.7,90.7,89.8,88.9,88.0];
 function targetW(day){
-  if(day>=99) return 91.8;
+  if(day>=99) return 88.0;
   const w=(day-1)/7, i=Math.floor(w), fr=w-i;
   return +(WPLAN[i]+(WPLAN[Math.min(i+1,14)]-WPLAN[i])*fr).toFixed(1);
 }
@@ -487,6 +488,7 @@ function renderHero(){
   const last=ws.length?S.weights[ws[ws.length-1]]:105;
   document.getElementById("wnow").textContent=kg(last);
   document.getElementById("wtarget").textContent=kg(targetW(view));
+  document.getElementById("wgoal").textContent=kg(targetW(100));
 }
 
 function renderToday(){
@@ -586,6 +588,28 @@ function addMealLogEntries(day,meal,mult){
   save(); renderFood();
   toast(meal.name+" добавлено");
 }
+// сумма КБЖУ всего рецепта/приёма пищи (все ингредиенты × их qty)
+function mealTotals(meal){
+  return (meal.items||[]).reduce((s,i)=>({
+    calories:s.calories+(i.calories||0)*(i.qty||1),protein:s.protein+(i.protein||0)*(i.qty||1),
+    carbs:s.carbs+(i.carbs||0)*(i.qty||1),fat:s.fat+(i.fat||0)*(i.qty||1)
+  }),{calories:0,protein:0,carbs:0,fat:0});
+}
+// рецепт с общим весом готового блюда — порция считается по граммам, а не по количеству штук:
+// съел 680 г из 5000 г кастрюли супа → берём ту же долю от калорий и БЖУ всего рецепта
+function addRecipePortion(day,meal,grams){
+  const totalWeight=Number(meal.totalWeight)||0;
+  if(!(totalWeight>0)){ toast("У рецепта не указан вес готового блюда"); return; }
+  const totals=mealTotals(meal), frac=grams/totalWeight;
+  if(!S.foodlog[day]) S.foodlog[day]={entries:[]};
+  S.foodlog[day].entries.push({
+    id:uid(),foodId:null,name:meal.name,servingLabel:r1(grams)+" г из "+r1(totalWeight)+" г",qty:1,
+    calories:r1(totals.calories*frac),protein:r1(totals.protein*frac),carbs:r1(totals.carbs*frac),fat:r1(totals.fat*frac)
+  });
+  bumpUse("meal",meal.id);
+  save(); renderFood();
+  toast(meal.name+" — "+r1(grams)+" г добавлено");
+}
 function removeLogEntry(day,id){
   if(!S.foodlog[day]) return;
   S.foodlog[day].entries=S.foodlog[day].entries.filter(e=>e.id!==id);
@@ -643,7 +667,7 @@ function renderLibrary(){
   <input class="searchbar" id="libSearch" type="text" placeholder="Поиск…" value="${esc(libQuery)}">
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
     <button class="btn" data-new-food>+ Новый продукт</button>
-    ${libTab==="foods"?`<button class="btn ghost" data-open-bulk>Импорт списком</button>`:`<button class="btn ghost" data-new-meal>+ Новый приём пищи</button>`}
+    ${libTab==="foods"?`<button class="btn ghost" data-open-bulk>Импорт списком</button>`:`<button class="btn ghost" data-new-meal>+ Новый приём пищи или рецепт</button>`}
   </div>
   <div id="libList"></div>`;
   document.getElementById("p-library").innerHTML=h;
@@ -673,10 +697,13 @@ function renderLibList(){
       .sort((a,b)=>(b.favorite-a.favorite)||(b.useCount||0)-(a.useCount||0)||a.name.localeCompare(b.name));
     list.innerHTML=items.length?items.map(m=>{
       const cals=(m.items||[]).reduce((s,i)=>s+i.calories,0);
+      const weight=Number(m.totalWeight)||0;
+      const sub=m.isRecipe?("рецепт · "+r1(weight)+" г"):((m.items||[]).length+" продуктов");
+      const calsLine=m.isRecipe&&weight>0?(Math.round(cals)+" ккал · "+r1(cals/weight*100)+" ккал/100г"):(Math.round(cals)+" ккал");
       return `<div class="libcard">
         <button class="star${m.favorite?" on":""}" data-fav-meal="${m.id}">${m.favorite?"★":"☆"}</button>
-        <div class="nm">${esc(m.name)}<span>${(m.items||[]).length} продуктов</span></div>
-        <div class="mm">${Math.round(cals)} ккал</div>
+        <div class="nm">${esc(m.name)}<span>${sub}</span></div>
+        <div class="mm">${calsLine}</div>
         <button data-del-meal="${m.id}">✕</button>
       </div>`;
     }).join(""):`<div class="emptylib">${q?"Ничего не найдено.":"Пока пусто — собери первый приём пищи из продуктов."}</div>`;
@@ -701,6 +728,7 @@ function modalHtml(){
   if(m.type==="quickadd") return quickAddModalHtml();
   if(m.type==="receipt") return receiptModalHtml();
   if(m.type==="bulk") return bulkModalHtml();
+  if(m.type==="recipeportion") return recipePortionModalHtml();
   return "";
 }
 function wireModalEvents(){
@@ -715,6 +743,7 @@ function wireModalEvents(){
   else if(m.type==="quickadd") wireQuickAddModal();
   else if(m.type==="receipt") wireReceiptModal();
   else if(m.type==="bulk") wireBulkModal();
+  else if(m.type==="recipeportion") wireRecipePortionModal();
 }
 
 /* ============ ИИ: разбор чека и подсказка КБЖУ ============ */
@@ -829,22 +858,35 @@ async function startFoodLookup(){
 
 /* ============ модалка: приём пищи ============ */
 function openMealModal(){
-  modalState={type:"meal",name:"",items:[],search:""};
+  modalState={type:"meal",name:"",items:[],search:"",isRecipe:false,totalWeight:""};
   renderModal();
+}
+function mealTotalsPreviewHtml(){
+  const m=modalState; if(!m||m.type!=="meal") return "";
+  const total=(m.items||[]).reduce((s,i)=>({calories:s.calories+i.calories,protein:s.protein+i.protein,carbs:s.carbs+i.carbs,fat:s.fat+i.fat}),{calories:0,protein:0,carbs:0,fat:0});
+  const weight=Number(m.totalWeight)||0;
+  const per100=m.isRecipe&&weight>0?`<p class="small">≈ ${r1(total.calories/weight*100)} ккал на 100 г готового блюда</p>`:"";
+  if(!(m.items||[]).length) return "";
+  return `<p class="small">Итого: ${Math.round(total.calories)} ккал · Б${r1(total.protein)} У${r1(total.carbs)} Ж${r1(total.fat)}</p>${per100}`;
 }
 function mealModalHtml(){
   const m=modalState;
-  const total=(m.items||[]).reduce((s,i)=>({calories:s.calories+i.calories,protein:s.protein+i.protein,carbs:s.carbs+i.carbs,fat:s.fat+i.fat}),{calories:0,protein:0,carbs:0,fat:0});
   const q=(m.search||"").trim().toLowerCase();
   const results=q?S.foods.filter(f=>f.name.toLowerCase().includes(q)).slice(0,8):[];
   return `<div class="modalbg"><div class="modalbox" data-stop>
-    <div class="mhead"><b>Новый приём пищи</b><button data-close-modal>&times;</button></div>
+    <div class="mhead"><b>Новый приём пищи или рецепт</b><button data-close-modal>&times;</button></div>
     <div class="mbody">
-      <div class="frow"><label>Название</label><input id="meal-name" type="text" value="${esc(m.name)}" placeholder="например, Завтрак спортсмена"></div>
+      <div class="frow"><label>Название</label><input id="meal-name" type="text" value="${esc(m.name)}" placeholder="например, Завтрак спортсмена или Суп на неделю"></div>
+      <div style="margin:2px 0"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="meal-is-recipe" style="width:auto" ${m.isRecipe?"checked":""}>
+        Рецепт с общим весом — делить порции по граммам
+      </label></div>
+      ${m.isRecipe?`<div class="frow"><label>Вес готового блюда, г</label><input id="meal-weight" type="number" step="any" min="0" value="${esc(m.totalWeight)}" placeholder="например, 5000"></div>
+      <p class="hint">Взвесь готовое блюдо целиком (например, всю кастрюлю супа) — тогда при заносе в дневник можно будет указать съеденный вес в граммах, а не число порций.</p>`:""}
       <div class="frow"><label>Добавить продукты</label><input id="meal-search" type="text" value="${esc(m.search)}" placeholder="Поиск по библиотеке…"></div>
       <div id="mealResults">${results.map(f=>`<div class="flrow"><div class="nm">${esc(f.name)}<span>${esc(f.servingLabel||"")} · ${Math.round(f.calories)} ккал</span></div><button data-meal-add="${f.id}" aria-label="Добавить">+</button></div>`).join("")}</div>
-      ${m.items.length?`<div id="mealItems">${m.items.map((it,idx)=>`<div class="flrow"><div class="nm">${esc(it.name)}</div><div class="kc">${Math.round(it.calories*it.qty)} ккал</div><button data-meal-rm="${idx}" aria-label="Убрать">✕</button></div>`).join("")}</div>
-      <p class="small">Итого: ${Math.round(total.calories)} ккал · Б${r1(total.protein)} У${r1(total.carbs)} Ж${r1(total.fat)}</p>`:`<p class="hint">Найди продукты выше и нажми «+», чтобы собрать приём пищи.</p>`}
+      ${m.items.length?`<div id="mealItems">${m.items.map((it,idx)=>`<div class="flrow"><div class="nm">${esc(it.name)}</div><div class="kc">${Math.round(it.calories*it.qty)} ккал</div><button data-meal-rm="${idx}" aria-label="Убрать">✕</button></div>`).join("")}</div>`:`<p class="hint">Найди продукты выше и нажми «+», чтобы собрать приём пищи.</p>`}
+      <div id="mealTotalsPreview">${mealTotalsPreviewHtml()}</div>
     </div>
     <div class="mfoot">
       <button class="btn ghost" data-close-modal>Отмена</button>
@@ -854,6 +896,15 @@ function mealModalHtml(){
 }
 function wireMealModal(){
   const root=document.getElementById("modalRoot"), m=modalState;
+  const nameEl=root.querySelector("#meal-name"); if(nameEl) nameEl.addEventListener("change",e=>{m.name=e.target.value;});
+  const recipeEl=root.querySelector("#meal-is-recipe"); if(recipeEl) recipeEl.addEventListener("change",e=>{m.isRecipe=e.target.checked; renderModal();});
+  // "input", не "change" + точечное обновление превью: полный renderModal() из обработчика
+  // change/blur текстового поля может уронить браузер ("node to be removed is no longer
+  // a child of this node"), если фокус в этот момент уже уходит на другой элемент
+  const weightEl=root.querySelector("#meal-weight"); if(weightEl) weightEl.addEventListener("input",e=>{
+    m.totalWeight=e.target.value;
+    const box=document.getElementById("mealTotalsPreview"); if(box) box.innerHTML=mealTotalsPreviewHtml();
+  });
   root.querySelector("#meal-search").addEventListener("input",e=>{m.search=e.target.value;renderModal();
     setTimeout(()=>{const el=document.getElementById("meal-search");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},0);});
   root.querySelectorAll("[data-meal-add]").forEach(b=>b.addEventListener("click",()=>{
@@ -868,7 +919,15 @@ function wireMealModal(){
     const name=(document.getElementById("meal-name").value||"").trim();
     if(!name){ toast("Дай приёму пищи название"); return; }
     if(!m.items.length){ toast("Добавь хотя бы один продукт"); return; }
-    createMeal({name,items:m.items}); closeModal(); renderLibrary(); toast("Приём пищи сохранён");
+    const isRecipe=!!document.getElementById("meal-is-recipe").checked;
+    let totalWeight=null;
+    if(isRecipe){
+      const wEl=document.getElementById("meal-weight");
+      totalWeight=Number(wEl?wEl.value:m.totalWeight);
+      if(!(totalWeight>0)){ toast("Укажи вес готового блюда в граммах"); return; }
+    }
+    createMeal({name,items:m.items,isRecipe,totalWeight});
+    closeModal(); renderLibrary(); toast(isRecipe?"Рецепт сохранён":"Приём пищи сохранён");
   });
 }
 
@@ -885,7 +944,7 @@ function quickAddModalHtml(){
       <input class="searchbar" id="qa-search" type="text" value="${esc(m.search)}" placeholder="Поиск продукта или приёма пищи…" style="margin-bottom:0">
       <div id="qaResults">${results.length?results.map(r=>{
         const cals=r.kind==="food"?r.calories:(r.items||[]).reduce((s,i)=>s+i.calories,0);
-        const meta=r.kind==="food"?esc(r.servingLabel||""):((r.items||[]).length+" продуктов");
+        const meta=r.kind==="food"?esc(r.servingLabel||""):(r.isRecipe?("рецепт · "+r1(Number(r.totalWeight)||0)+" г"):((r.items||[]).length+" продуктов"));
         return `<div class="flrow"><div class="nm">${esc(r.name)}<span>${meta}</span></div><div class="kc">${Math.round(cals)} ккал</div><button data-qa-add="${r.kind}:${r.id}" aria-label="Добавить">+</button></div>`;
       }).join(""):(q?`<div class="emptylib">Ничего не найдено. <a href="#" id="qa-create" style="color:var(--brass)">Добавить «${esc(m.search)}» как новый продукт</a></div>`:`<div class="emptylib">Начни печатать, чтобы найти продукт.</div>`)}</div>
     </div>
@@ -899,7 +958,11 @@ function wireQuickAddModal(){
   root.querySelectorAll("[data-qa-add]").forEach(b=>b.addEventListener("click",()=>{
     const [kind,id]=b.getAttribute("data-qa-add").split(":");
     if(kind==="food"){ const f=S.foods.find(x=>x.id===id); if(f){ closeModal(); addLogEntry(m.day,f,1); } }
-    else { const meal=S.meals.find(x=>x.id===id); if(meal){ closeModal(); addMealLogEntries(m.day,meal,1); } }
+    else {
+      const meal=S.meals.find(x=>x.id===id); if(!meal) return;
+      if(meal.isRecipe){ const day=m.day; closeModal(); openRecipePortionModal(day,meal); }
+      else { closeModal(); addMealLogEntries(m.day,meal,1); }
+    }
   }));
   const createLink=root.querySelector("#qa-create");
   if(createLink) createLink.addEventListener("click",e=>{
@@ -907,6 +970,60 @@ function wireQuickAddModal(){
     const name=m.search, day=m.day;
     modalState={type:"food",id:null,logTo:day,data:{name,servingLabel:"",calories:"",protein:"",carbs:"",fat:""},lookupLoading:false,lookupError:null};
     renderModal();
+  });
+}
+
+/* ============ модалка: порция рецепта по весу (граммы съеденного из общей партии) ============ */
+function openRecipePortionModal(day,mealId){
+  // допускаем вызов и с готовым объектом meal (на момент клика), и с id — берём свежий объект из S.meals
+  const id=typeof mealId==="object"&&mealId?mealId.id:mealId;
+  modalState={type:"recipeportion",day:day,mealId:id,grams:""};
+  renderModal();
+}
+function recipePortionModalHtml(){
+  const m=modalState;
+  const meal=S.meals.find(x=>x.id===m.mealId);
+  if(!meal){
+    return `<div class="modalbg"><div class="modalbox" data-stop>
+      <div class="mhead"><b>Рецепт не найден</b><button data-close-modal>&times;</button></div>
+      <div class="mbody"><p class="small">Похоже, рецепт был удалён из библиотеки.</p></div>
+      <div class="mfoot"><button class="btn ghost" data-close-modal>Закрыть</button></div>
+    </div></div>`;
+  }
+  const totals=mealTotals(meal), weight=Number(meal.totalWeight)||0;
+  return `<div class="modalbg"><div class="modalbox" data-stop>
+    <div class="mhead"><b>${esc(meal.name)}</b><button data-close-modal>&times;</button></div>
+    <div class="mbody">
+      <p class="hint">Весь рецепт: ${Math.round(totals.calories)} ккал на ${r1(weight)} г готового блюда (${r1(totals.calories/(weight||1)*100)} ккал/100г).</p>
+      <div class="frow"><label>Сколько грамм съедено</label><input id="rp-grams" type="number" step="any" min="0" value="${esc(m.grams)}" placeholder="например, 680" autofocus></div>
+      <div id="rpPreview">${recipePortionPreviewHtml()}</div>
+    </div>
+    <div class="mfoot"><button class="btn ghost" data-close-modal>Отмена</button><button class="btn" id="rp-save">Добавить в день ${m.day}</button></div>
+  </div></div>`;
+}
+function recipePortionPreviewHtml(){
+  const m=modalState; if(!m||m.type!=="recipeportion") return "";
+  const meal=S.meals.find(x=>x.id===m.mealId); if(!meal) return "";
+  const weight=Number(meal.totalWeight)||0, grams=Number(m.grams)||0;
+  if(!(grams>0)||!(weight>0)) return "";
+  const totals=mealTotals(meal), frac=grams/weight;
+  return `<p class="small">≈ ${Math.round(totals.calories*frac)} ккал · Б${r1(totals.protein*frac)} У${r1(totals.carbs*frac)} Ж${r1(totals.fat*frac)}</p>`;
+}
+function wireRecipePortionModal(){
+  const root=document.getElementById("modalRoot"), m=modalState;
+  const gEl=root.querySelector("#rp-grams");
+  if(gEl) gEl.addEventListener("input",e=>{
+    m.grams=e.target.value;
+    const pc=document.getElementById("rpPreview"); if(pc) pc.innerHTML=recipePortionPreviewHtml();
+  });
+  const saveBtn=root.querySelector("#rp-save");
+  if(saveBtn) saveBtn.addEventListener("click",()=>{
+    const meal=S.meals.find(x=>x.id===m.mealId); if(!meal){ toast("Рецепт не найден"); return; }
+    const grams=Number(m.grams);
+    if(!(grams>0)){ toast("Укажи вес порции в граммах"); return; }
+    const day=m.day;
+    closeModal();
+    addRecipePortion(day,meal,grams);
   });
 }
 
@@ -1160,7 +1277,7 @@ function renderFood(){
   <details style="margin-top:24px">
     <summary style="cursor:pointer;color:var(--muted);font-family:var(--disp);font-size:14px">Справка по калориям и весу ▾</summary>
     <div style="margin-top:10px">
-      <p>Расчёт под мужчину 105 кг, 35+, ежедневные тренировки и 10–14 тысяч шагов. Расход на старте — около 2900–3000 ккал, к финишу он падает примерно до 2650, поэтому калории снижаются ступенями, а не сразу. Белок держим высоким всю дорогу — на дефиците он защищает мышцы, которые мы строим гирей.</p>
+      <p>Расчёт под мужчину 105 кг, 35+, ежедневные тренировки и 10–14 тысяч шагов, финиш — 88 кг к сотому дню (−17 кг). Расход на старте — около 2900–3000 ккал, к финишу он падает примерно до 2550, поэтому калории снижаются ступенями, а не сразу. Белок держим высоким всю дорогу — на дефиците он защищает мышцы, которые мы строим гирей.</p>
       <table><tr><th>Блок</th><th>Дни</th><th>Ккал</th><th>Б</th><th>Ж</th><th>У</th></tr>
       ${BLOCKS.map(b=>`<tr><td>${b.n} · ${b.name}</td><td class="small">${(b.w[0]-1)*7+1}–${b.n===5?100:b.w[1]*7}</td><td class="n">${b.kcal}</td><td class="n">${b.p}</td><td class="n">${b.f}</td><td class="n">${b.c}</td></tr>`).join("")}
       </table>
@@ -1168,22 +1285,21 @@ function renderFood(){
       <p class="small">Ориентиры на конец каждой недели, кг:</p><table><tr><th>Нед.</th><th>Вес</th><th>Нед.</th><th>Вес</th></tr>
       ${(()=>{let t="";for(let i=1;i<=7;i++) t+=`<tr><td>${i}</td><td class="n">${kg(WPLAN[i])}</td><td>${i+7}</td><td class="n">${kg(WPLAN[i+7])}</td></tr>`;return t;})()}
       </table>
-      <h3>Про 88 кг честно</h3>
-      <p>Чтобы прийти к 88 кг ровно на сотый день, нужно есть в среднем около 1800 ккал все сто дней подряд, тренируясь при этом каждый день. Технически это возможно, практически — так теряют не только жир, но и мышцу, сон и желание продолжать.</p>
-      <p>Здесь заложен дефицит 700–900 ккал: старт с 2450 и понижение по мере падения веса, потому что расход снижается вместе с ним. Плюс дефицит докупается шагами — с 10 до 14 тысяч, а не дальнейшим срезанием еды. Расчётный финиш — около 92 кг, минус 13.</p>
-      <p>До 88 кг остаётся ещё 4–5 недель на тех же 1950–2050 ккал. Разница с исходным планом только в дате, зато к сотому дню ты придёшь с рабочей гирей 24 кг, а не выжатым.</p>
+      <h3>Дефицит здесь жёстче обычного — честно про это</h3>
+      <p>88 кг за сто дней — это на 4 кг больше потери, чем щадящие ~92 кг, которые давал бы более мягкий вариант этого плана. В среднем по всем блокам получается около 1900 ккал в день на еду, плюс ещё дефицит докупается шагами — с 10 до 14 тысяч, а не дальнейшим срезанием еды. Это уже граница между «работает» и «начинает есть мышцу вместе с жиром» — именно поэтому белок держится высоким (190–200 г) весь план, а не только к концу.</p>
+      <p>Если через пару недель сон разваливается, сила падает три тренировки подряд или пропадает мотивация — это не слабость, а сигнал, что дефицит велик для тебя лично. Смотри «Пересчёт каждые 14 дней» ниже: там прямо расписано, когда стоит притормозить, даже если это отодвинет 88 кг на пару недель за пределы сотого дня. Дойти туда медленнее — всё ещё выигрыш; сорваться на 60-й день — нет.</p>
       <h3>Как это есть</h3>
       <ul class="small">
-        <li>Белок: 185–195 г — примерно 700–750 г готового мяса, рыбы, творога и яиц в день. Разбей на 4 приёма.</li>
-        <li>Жиры не опускай ниже 60 г: тестостерон и суставы. Источники — яйца, оливковое масло, жирная рыба, орехи в меру.</li>
-        <li>Углеводы ставь вокруг тренировки: до и после. В дни ходьбы их меньше всего.</li>
-        <li>Овощи — 500 г в день, они дают объём при копеечных калориях.</li>
+        <li>Белок: 190–200 г — примерно 750–800 г готового мяса, рыбы, творога и яиц в день. Разбей на 4 приёма.</li>
+        <li>Жиры не опускай ниже 55 г: тестостерон и суставы. Источники — яйца, оливковое масло, жирная рыба, орехи в меру.</li>
+        <li>Углеводы ставь вокруг тренировки: до и после. В дни ходьбы их меньше всего — на таких калориях резервов мало.</li>
+        <li>Овощи — 500 г в день, они дают объём при копеечных калориях, это критично на низких углеводах.</li>
         <li>Соль не режь: на дефиците и с потом её не хватает, отсюда слабость на тренировке.</li>
-        <li>Алкоголь: он не только калории, он ещё и минус восстановление на 2–3 дня.</li>
+        <li>Алкоголь: он не только калории, он ещё и минус восстановление на 2–3 дня — на таком дефиците это особенно заметно.</li>
       </ul>
       <h3>Пересчёт каждые 14 дней</h3>
-      <p class="small">Сравни средний вес за последние 7 дней с планом. Отстаёшь больше чем на 1 кг — сначала плюс 1500 шагов, потом уже минус 100 ккал углеводов. Опережаешь больше чем на 1,5 кг — добавь 100 ккал: слишком быстрая потеря забирает мышцы и убивает силовые.</p>
-      <div class="note">Если два дня подряд болит поясница или колено, если сон стал рваным, а сила падает третью тренировку подряд — это не лень, а перебор. Неделя на калориях поддержания (+400 ккал) и половинном объёме, потом возвращайся в график.</div>
+      <p class="small">Сравни средний вес за последние 7 дней с планом. Отстаёшь больше чем на 1,3 кг — сначала плюс 1500 шагов, потом уже минус 100 ккал углеводов. Опережаешь больше чем на 2 кг — добавь 100 ккал: слишком быстрая потеря забирает мышцы и убивает силовые.</p>
+      <div class="note">Если два дня подряд болит поясница или колено, если сон стал рваным, а сила падает третью тренировку подряд — это не лень, а перебор. Неделя на калориях поддержания (+400 ккал) и половинном объёме, потом возвращайся в график. На этом более жёстком варианте плана следи за этим внимательнее, чем следил бы на щадящем.</div>
     </div>
   </details>`;
   document.getElementById("p-food").innerHTML=h;
