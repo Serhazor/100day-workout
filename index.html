@@ -212,6 +212,17 @@ td.n{font-family:var(--disp);font-size:16px}
 .heatlegend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:11.5px;color:var(--muted)}
 .heatlegend span{display:inline-flex;align-items:center;gap:6px}
 .heatlegend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+/* ---------- подходы и тренировки ---------- */
+.logbtn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 4px;flex-shrink:0;align-self:flex-start}
+.logbtn:hover{color:var(--brass)}
+.ex .nm .loggedline{display:block;font-size:11px;color:var(--brass);margin-top:2px}
+.ex.done .nm .loggedline{color:var(--iron3)}
+.setrow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.setrow span{width:20px;font-size:12px;color:var(--muted);flex-shrink:0;text-align:right}
+.setrow input{flex:1;background:var(--iron2);border:1px solid var(--line);color:var(--paper);padding:8px 9px;font-family:var(--body);font-size:14px;border-radius:2px}
+.setrow button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px;flex-shrink:0}
+.setrow button:hover{color:var(--rust)}
 </style>
 </head>
 <body>
@@ -424,10 +435,11 @@ function dayPlan(d){
 const DOW=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
 /* ---------- состояние ---------- */
-let S={start:"2026-09-05",done:{},weights:{},foods:[],meals:[],foodlog:{}};
+let S={start:"2026-09-05",done:{},weights:{},foods:[],meals:[],foodlog:{},setlog:{},workoutlog:{}};
 function withDefaults(s){
   // на случай старой сохранённой версии без этих полей — иначе первый же save() их потеряет
   s.foods=s.foods||[]; s.meals=s.meals||[]; s.foodlog=s.foodlog||{};
+  s.setlog=s.setlog||{}; s.workoutlog=s.workoutlog||{};
   return s;
 }
 let view=1, mem=null;
@@ -501,6 +513,43 @@ function dateOf(d){
 const fmtD=t=>t.toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
 const kg=v=>v.toFixed(1).replace(".",",");
 
+/* ---------- подходы, тренировочные калории, другие активности ---------- */
+function currentWeight(){
+  const ws=Object.keys(S.weights).map(Number).sort((a,b)=>a-b);
+  return ws.length?S.weights[ws[ws.length-1]]:WPLAN[0];
+}
+// оценка ккал по MET: ккал/мин = MET × 3.5 × вес(кг) / 200
+function estKcal(met,minutes,weightKg){
+  minutes=Number(minutes)||0; weightKg=Number(weightKg)||WPLAN[0];
+  return Math.max(0,Math.round(met*3.5*weightKg/200*minutes));
+}
+function defaultWorkoutMinutes(p){return p.light?25:45;}
+function defaultWorkoutMET(p){return p.light?3.5:6.5;}
+const ACTIVITY_PRESETS=[
+  {name:"Бег",met:9},{name:"Плавание",met:7},{name:"Велосипед",met:7.5},
+  {name:"Футбол",met:7},{name:"Теннис",met:7},{name:"Йога",met:3},
+  {name:"Ходьба",met:3.5},{name:"Другое",met:6}
+];
+function metForActivity(name){
+  const hit=ACTIVITY_PRESETS.find(a=>a.name.toLowerCase()===String(name||"").trim().toLowerCase());
+  return hit?hit.met:6;
+}
+// «3×12» → 3 подхода по 12; «5×10 на руку» → 5 по 10; если не разобрать — один пустой подход
+function parseSetsFromRx(rx){
+  const m=String(rx||"").match(/^(\d+)\s*[×x]\s*(\d+)/i);
+  if(m) return {count:Math.min(12,parseInt(m[1],10)),each:parseInt(m[2],10)};
+  return {count:1,each:null};
+}
+function formatSetLog(sets){
+  if(!sets||!sets.length) return "";
+  const vs=sets.map(s=>(s.v!=null&&s.v!=="")?s.v:"–");
+  const kgVals=sets.filter(s=>s.kg!=null&&s.kg!=="").map(s=>s.kg);
+  const sameKg=kgVals.length===sets.length&&kgVals.every(k=>k===kgVals[0]);
+  let txt="факт "+vs.join("/");
+  if(kgVals.length) txt+=sameKg?(" · "+kgVals[0]+" кг"):(" кг: "+kgVals.join("/"));
+  return txt;
+}
+
 /* ---------- отрисовка ---------- */
 function renderHero(){
   const b=blockOfWeek(Math.min(14,Math.ceil(view/7)));
@@ -523,7 +572,8 @@ function renderToday(){
     <span>${s.note?s.note:"Разминка 6–8 минут: суставы, махи ногами, 20 приседаний, 10 отжиманий"}</span></header>`;
   s.ex.forEach((e,i)=>{
     const k=`${view}:${i}`, on=S.done[k]?" done":"";
-    h+=`<div class="ex${on}" data-k="${k}"><div class="box"></div><div class="nm">${e.n}</div><div class="pr">${e.p}</div></div>`;
+    const lg=S.setlog[k], summary=lg?formatSetLog(lg.sets):"";
+    h+=`<div class="ex${on}" data-k="${k}"><div class="box"></div><div class="nm">${e.n}${summary?`<span class="loggedline">${esc(summary)}</span>`:""}</div><div class="pr">${e.p}</div><button class="logbtn" data-logset="${i}" aria-label="Записать подходы">✎</button></div>`;
   });
   h+=`</div>`;
   if(p.light) h+=`<p class="small">Лёгкий день — часть программы, а не пропуск. Работай в полсилы: смысл в том, чтобы завтра снова быть в строю.</p>`;
@@ -535,10 +585,45 @@ function renderToday(){
     <div><b>${isRef?b.c+70:b.c}</b><span>углеводы, г</span></div></div>`;
   if(isRef) h+=`<div class="refeed">Загрузочный день. ${b.refeed}</div>`;
   h+=`<p class="small">Вода 3 л · клетчатка 30–35 г · ${b.steps} · белок разбей на 4 приёма по 45–50 г.</p>`;
+
+  const wo=S.workoutlog[view]||{};
+  const defMin=defaultWorkoutMinutes(p), defMet=defaultWorkoutMET(p);
+  const woMinutes=(wo.minutes!=null)?wo.minutes:defMin;
+  const woKcal=(wo.kcal!=null)?wo.kcal:estKcal(defMet,defMin,currentWeight());
+  const extras=wo.extras||[];
+  h+=`<h3>Тренировка</h3>
+  <div class="frowgrid">
+    <div class="frow"><label>Длительность, мин</label><input id="wo-min" type="number" step="any" min="0" value="${woMinutes}"></div>
+    <div class="frow"><label>Ккал (оценка)</label><input id="wo-kcal" type="number" step="any" min="0" value="${woKcal}"></div>
+  </div>
+  <p class="hint">Оценка по интенсивности дня и весу ${kg(currentWeight())} кг — поправь, если знаешь точнее (например, с часов).</p>
+  <button class="btn" id="wo-save">Сохранить тренировку</button>
+  ${extras.length?`<div style="margin-top:14px">${extras.map(x=>`<div class="flrow"><div class="nm">${esc(x.name)}<span>${x.minutes?x.minutes+" мин":""}${x.note?" · "+esc(x.note):""}</span></div><div class="kc">${Math.round(x.kcal)} ккал</div><button data-edit-act="${x.id}" aria-label="Изменить">✎</button></div>`).join("")}</div>`:""}
+  <button class="addrow" id="add-activity">+ Добавить другую активность (бег, плавание, футбол…)</button>`;
+
   el.innerHTML=h;
-  el.querySelectorAll(".ex").forEach(n=>n.addEventListener("click",()=>{
+  el.querySelectorAll(".ex").forEach(n=>n.addEventListener("click",ev=>{
+    if(ev.target.closest(".logbtn")) return;
     const k=n.dataset.k; S.done[k]=!S.done[k]; n.classList.toggle("done"); save();
   }));
+  el.querySelectorAll(".logbtn").forEach(b=>b.addEventListener("click",ev=>{
+    ev.stopPropagation();
+    openSetLogModal(view,Number(b.getAttribute("data-logset")));
+  }));
+  const woMinEl=document.getElementById("wo-min"), woKcalEl=document.getElementById("wo-kcal");
+  if(woMinEl) woMinEl.addEventListener("input",()=>{
+    woKcalEl.value=estKcal(defMet,Number(woMinEl.value)||0,currentWeight());
+  });
+  const woSaveBtn=document.getElementById("wo-save");
+  if(woSaveBtn) woSaveBtn.addEventListener("click",()=>{
+    if(!S.workoutlog[view]) S.workoutlog[view]={extras:[]};
+    S.workoutlog[view].minutes=Number(woMinEl.value)||0;
+    S.workoutlog[view].kcal=Number(woKcalEl.value)||0;
+    save(); toast("Тренировка сохранена");
+  });
+  const addActBtn=document.getElementById("add-activity");
+  if(addActBtn) addActBtn.addEventListener("click",()=>openActivityModal(view,null));
+  el.querySelectorAll("[data-edit-act]").forEach(b=>b.addEventListener("click",()=>openActivityModal(view,b.getAttribute("data-edit-act"))));
 }
 
 function renderPlan(){
@@ -753,6 +838,8 @@ function modalHtml(){
   if(m.type==="receipt") return receiptModalHtml();
   if(m.type==="bulk") return bulkModalHtml();
   if(m.type==="recipeportion") return recipePortionModalHtml();
+  if(m.type==="setlog") return setLogModalHtml();
+  if(m.type==="activity") return activityModalHtml();
   return "";
 }
 function wireModalEvents(){
@@ -768,6 +855,8 @@ function wireModalEvents(){
   else if(m.type==="receipt") wireReceiptModal();
   else if(m.type==="bulk") wireBulkModal();
   else if(m.type==="recipeportion") wireRecipePortionModal();
+  else if(m.type==="setlog") wireSetLogModal();
+  else if(m.type==="activity") wireActivityModal();
 }
 
 /* ============ ИИ: разбор чека и подсказка КБЖУ ============ */
@@ -1048,6 +1137,136 @@ function wireRecipePortionModal(){
     const day=m.day;
     closeModal();
     addRecipePortion(day,meal,grams);
+  });
+}
+
+/* ============ модалка: подходы упражнения (факт по повторам и весу) ============ */
+function openSetLogModal(day,idx){
+  const ex=dayPlan(day).sess.ex[idx]; if(!ex) return;
+  const key=`${day}:${idx}`, existing=S.setlog[key];
+  let sets;
+  if(existing&&existing.sets&&existing.sets.length){
+    sets=existing.sets.map(s=>({v:s.v!=null?s.v:"",kg:s.kg!=null?s.kg:""}));
+  } else {
+    const {count,each}=parseSetsFromRx(ex.p);
+    sets=Array.from({length:count},()=>({v:each!=null?each:"",kg:""}));
+  }
+  modalState={type:"setlog",day,idx,name:ex.n,rx:ex.p,sets,note:existing?(existing.note||""):""};
+  renderModal();
+}
+function setLogModalHtml(){
+  const m=modalState;
+  const rows=m.sets.map((s,i)=>`<div class="setrow">
+    <span>${i+1}</span>
+    <input type="number" step="any" inputmode="decimal" data-set-v="${i}" value="${esc(s.v)}" placeholder="повт./сек/м">
+    <input type="number" step="any" inputmode="decimal" data-set-kg="${i}" value="${esc(s.kg)}" placeholder="кг">
+    <button data-set-rm="${i}" aria-label="Убрать подход">✕</button>
+  </div>`).join("");
+  return `<div class="modalbg"><div class="modalbox" data-stop>
+    <div class="mhead"><b>${esc(m.name)}</b><button data-close-modal>&times;</button></div>
+    <div class="mbody">
+      <p class="hint">План: ${esc(m.rx)}</p>
+      <div id="setRows">${rows}</div>
+      <button class="addrow" id="set-addrow">+ Добавить подход</button>
+      <div class="frow"><label>Заметка</label><input id="set-note" type="text" value="${esc(m.note)}" placeholder="необязательно"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn ghost" data-close-modal>Отмена</button>
+      <button class="btn" id="set-save">Сохранить</button>
+    </div>
+  </div></div>`;
+}
+function wireSetLogModal(){
+  const root=document.getElementById("modalRoot"), m=modalState;
+  root.querySelectorAll("[data-set-v]").forEach(inp=>inp.addEventListener("input",e=>{m.sets[+inp.getAttribute("data-set-v")].v=e.target.value;}));
+  root.querySelectorAll("[data-set-kg]").forEach(inp=>inp.addEventListener("input",e=>{m.sets[+inp.getAttribute("data-set-kg")].kg=e.target.value;}));
+  root.querySelectorAll("[data-set-rm]").forEach(b=>b.addEventListener("click",()=>{ m.sets.splice(+b.getAttribute("data-set-rm"),1); renderModal(); }));
+  root.querySelector("#set-addrow").addEventListener("click",()=>{ m.sets.push({v:"",kg:""}); renderModal(); });
+  const noteEl=root.querySelector("#set-note"); if(noteEl) noteEl.addEventListener("input",e=>{m.note=e.target.value;});
+  root.querySelector("#set-save").addEventListener("click",()=>{
+    const key=`${m.day}:${m.idx}`;
+    const cleaned=m.sets
+      .map(s=>({v:s.v===""||s.v==null?null:Number(s.v), kg:s.kg===""||s.kg==null?null:Number(s.kg)}))
+      .filter(s=>s.v!=null||s.kg!=null);
+    if(cleaned.length){ S.setlog[key]={sets:cleaned,note:m.note.trim(),updatedAt:Date.now()}; S.done[key]=true; }
+    else { delete S.setlog[key]; }
+    save(); closeModal(); renderToday(); renderHero();
+    toast("Записано");
+  });
+}
+
+/* ============ модалка: другая активность (бег, плавание, футбол…) ============ */
+function openActivityModal(day,id){
+  const existing=id?((S.workoutlog[day]&&S.workoutlog[day].extras)||[]).find(x=>x.id===id):null;
+  const minutes=existing?existing.minutes:30;
+  modalState={type:"activity",day,id:id||null,
+    name:existing?existing.name:"",
+    minutes:minutes,
+    kcal:existing?existing.kcal:estKcal(metForActivity(existing?existing.name:""),minutes,currentWeight()),
+    note:existing?(existing.note||""):""};
+  renderModal();
+}
+function activityModalHtml(){
+  const m=modalState;
+  return `<div class="modalbg"><div class="modalbox" data-stop>
+    <div class="mhead"><b>${m.id?"Изменить активность":"Другая активность"}</b><button data-close-modal>&times;</button></div>
+    <div class="mbody">
+      <div class="libtabs" style="flex-wrap:wrap">${ACTIVITY_PRESETS.map(a=>`<button data-act-preset="${esc(a.name)}" class="${m.name===a.name?"on":""}">${esc(a.name)}</button>`).join("")}</div>
+      <div class="frow"><label>Название</label><input id="act-name" type="text" value="${esc(m.name)}" placeholder="например, Бег"></div>
+      <div class="frowgrid">
+        <div class="frow"><label>Длительность, мин</label><input id="act-min" type="number" step="any" min="0" value="${m.minutes}"></div>
+        <div class="frow"><label>Ккал</label><input id="act-kcal" type="number" step="any" min="0" value="${m.kcal}"></div>
+      </div>
+      <p class="hint">Оценка по типу активности, длительности и последнему весу (${kg(currentWeight())} кг) — поправь, если знаешь точнее.</p>
+      <div class="frow"><label>Заметка</label><input id="act-note" type="text" value="${esc(m.note)}" placeholder="необязательно"></div>
+    </div>
+    <div class="mfoot">
+      ${m.id?`<button class="btn ghost" data-del-act style="margin-right:auto;color:var(--rust);border-color:var(--rust)">Удалить</button>`:""}
+      <button class="btn ghost" data-close-modal>Отмена</button>
+      <button class="btn" id="act-save">Сохранить</button>
+    </div>
+  </div></div>`;
+}
+function wireActivityModal(){
+  const root=document.getElementById("modalRoot"), m=modalState;
+  root.querySelectorAll("[data-act-preset]").forEach(b=>b.addEventListener("click",()=>{
+    const name=b.getAttribute("data-act-preset");
+    m.name=name; m.minutes=Number(document.getElementById("act-min").value)||m.minutes;
+    m.kcal=estKcal(metForActivity(name),m.minutes,currentWeight());
+    renderModal();
+  }));
+  root.querySelector("#act-name").addEventListener("input",e=>{m.name=e.target.value;});
+  root.querySelector("#act-min").addEventListener("input",e=>{
+    m.minutes=e.target.value;
+    const est=estKcal(metForActivity(m.name),m.minutes,currentWeight());
+    const kEl=document.getElementById("act-kcal"); if(kEl) kEl.value=est;
+  });
+  root.querySelector("#act-kcal").addEventListener("input",e=>{m.kcal=e.target.value;});
+  root.querySelector("#act-note").addEventListener("input",e=>{m.note=e.target.value;});
+  const delBtn=root.querySelector("[data-del-act]");
+  if(delBtn) delBtn.addEventListener("click",()=>{
+    if(!confirm("Удалить эту активность?")) return;
+    const day=m.day, id=m.id;
+    if(S.workoutlog[day]) S.workoutlog[day].extras=(S.workoutlog[day].extras||[]).filter(x=>x.id!==id);
+    save(); closeModal(); renderToday();
+  });
+  root.querySelector("#act-save").addEventListener("click",()=>{
+    const name=(document.getElementById("act-name").value||"").trim();
+    if(!name){ toast("Дай активности название"); return; }
+    const minutes=Number(document.getElementById("act-min").value)||0;
+    const kcal=Number(document.getElementById("act-kcal").value)||0;
+    const note=(document.getElementById("act-note").value||"").trim();
+    const day=m.day;
+    if(!S.workoutlog[day]) S.workoutlog[day]={minutes:null,kcal:null,extras:[]};
+    if(!S.workoutlog[day].extras) S.workoutlog[day].extras=[];
+    if(m.id){
+      const it=S.workoutlog[day].extras.find(x=>x.id===m.id);
+      if(it) Object.assign(it,{name,minutes,kcal,note});
+    } else {
+      S.workoutlog[day].extras.push({id:uid(),name,minutes,kcal,note});
+    }
+    save(); closeModal(); renderToday();
+    toast("Активность сохранена");
   });
 }
 
@@ -1450,6 +1669,17 @@ function renderStats(){
   const avgPPct=nDays&&sumTargetP>0?Math.round(sumP/sumTargetP*100):0;
   const loggingRate=curDay?Math.round(nDays/curDay*100):0;
 
+  // тренировочные калории (основная сессия + другие активности)
+  let totalBurned=0,workoutDaysLogged=0,extrasCount=0;
+  for(let d=1;d<=curDay;d++){
+    const wo=S.workoutlog[d]; if(!wo) continue;
+    let dayTotal=0,has=false;
+    if(wo.kcal!=null){ dayTotal+=Number(wo.kcal)||0; has=true; }
+    (wo.extras||[]).forEach(x=>{ dayTotal+=Number(x.kcal)||0; has=true; extrasCount++; });
+    if(has){ totalBurned+=dayTotal; workoutDaysLogged++; }
+  }
+  const avgBurned=workoutDaysLogged?Math.round(totalBurned/workoutDaysLogged):0;
+
   // блок и общий прогресс
   const week=Math.min(14,Math.ceil(curDay/7));
   const b=blockOfWeek(week);
@@ -1506,6 +1736,14 @@ function renderStats(){
     <div class="stat-tile"><b class="${nDays?(avgKcal>avgTargetKcal?"bad":""):""}">${nDays?avgKcal:"—"}</b><span>ккал в среднем${nDays?" из "+avgTargetKcal:""}</span></div>
     <div class="stat-tile"><b class="${nDays?(avgPPct>=95?"good":(avgPPct<70?"bad":"")):""}">${nDays?avgPPct+"%":"—"}</b><span>белок в среднем от цели</span></div>
     <div class="stat-tile"><b>${nDays?Math.round(hitP/nDays*100)+"%":"—"}</b><span>дней с белком в норме</span></div>
+  </div>
+
+  <h3>Тренировки</h3>
+  <div class="stat-grid">
+    <div class="stat-tile"><b>${workoutDaysLogged}/${curDay}</b><span>дней с калориями тренировки</span></div>
+    <div class="stat-tile"><b>${totalBurned?Math.round(totalBurned):"—"}</b><span>сожжено всего, ккал</span></div>
+    <div class="stat-tile"><b>${workoutDaysLogged?avgBurned:"—"}</b><span>в среднем за тренировку, ккал</span></div>
+    <div class="stat-tile"><b>${extrasCount}</b><span>других активностей записано</span></div>
   </div>`;
   document.querySelectorAll("#p-stats .hcell").forEach(c=>c.addEventListener("click",()=>goToDay(Number(c.dataset.day))));
 }
